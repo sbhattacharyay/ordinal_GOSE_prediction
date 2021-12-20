@@ -5,11 +5,11 @@
 # email address: sb2406@cam.ac.uk
 #
 ### Contents:
-# I. Initialization
+# I. Initialisation
 # II. Load and filter CENTER-TBI dataset
 # III. Characterise ICU stay timestamps
 
-### I. Initialization
+### I. Initialisation
 import os
 import sys
 import time
