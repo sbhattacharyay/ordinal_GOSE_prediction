@@ -40,12 +40,12 @@ from sklearn.utils.class_weight import compute_class_weight
 # TQDM for progress tracking
 from tqdm import tqdm
 
-class IMPACT_CENTER_TBI(Dataset):
+class CONCISE_PREDICTOR_SET(Dataset):
     # load the dataset
     def __init__(self, data, output_activation):
         """
         Args:
-            data (DataFrame): IMPACT-style pandas DataFrame
+            data (DataFrame): concise-predictor-set-style pandas DataFrame
             output_activation (string, 'softmax' or 'sigmoid'): Identifies output layer type based on output encoding
         """
         
@@ -78,12 +78,12 @@ class IMPACT_CENTER_TBI(Dataset):
     def __getitem__(self, idx):
         return self.X[idx], self.y[idx]
     
-class CENTER_TBI_TOKENS(Dataset):
+class ALL_PREDICTOR_SET(Dataset):
     # load the dataset
     def __init__(self, data, output_activation):
         """
         Args:
-            data (DataFrame): CENTER-TBI tokens pandas DataFrame
+            data (DataFrame): APM tokens pandas DataFrame
             output_activation (string, 'softmax' or 'sigmoid'): Identifies output layer type based on output encoding
         """
         

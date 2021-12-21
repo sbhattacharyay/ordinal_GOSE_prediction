@@ -344,20 +344,22 @@ def calculate_bs_med_rank(rs_GUPIs, compiled_test_preds, bbc_cv=False, progress_
     return compiled_med_rank
 
 # Function to calculate threshold-level calibration curves
-def calc_bs_thresh_calibration(rs_GUPIs, compiled_test_preds, bbc_cv=False, progress_bar = True, progress_bar_desc = ''):
+def calc_bs_thresh_calibration(curr_resamples, compiled_test_preds, progress_bar = True, progress_bar_desc = ''):
     
     thresh_labels = ['GOSE>1','GOSE>3','GOSE>4','GOSE>5','GOSE>6','GOSE>7']
     
     compiled_calibs = []
     
     if progress_bar:
-        iterator = tqdm(rs_GUPIs,desc=progress_bar_desc)
+        iterator = tqdm(range(curr_resamples.shape[0]),desc=progress_bar_desc)
     else:
-        iterator = rs_GUPIs
+        iterator = range(curr_resamples.shape[0])
         
-    for curr_rs in iterator:
+    for curr_rs_row in iterator:
+                
+        curr_in_sample = curr_resamples.GUPIs[curr_rs_row]
         
-        curr_rs_preds = compiled_test_preds[compiled_test_preds.GUPI.isin(curr_rs)]
+        curr_rs_preds = compiled_test_preds[compiled_test_preds.GUPI.isin(curr_in_sample)].reset_index(drop=True)
         
         prob_cols = [col for col in curr_rs_preds if col.startswith('Pr(GOSE')]
         

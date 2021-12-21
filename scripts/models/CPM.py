@@ -32,8 +32,8 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import confusion_matrix, accuracy_score, roc_auc_score
 
-# DeepIMPACT
-class deepIMPACT(pl.LightningModule):
+# deep learning CPM model
+class CPM_deep(pl.LightningModule):
     def __init__(self,in_features,layers,neurons,dropout,output_activation,learning_rate,class_weights,targets):
         """
         Args:
@@ -46,7 +46,7 @@ class deepIMPACT(pl.LightningModule):
             class_weights (boolean): identifies whether loss should be weighted against class frequency
             targets (NumPy array): if class_weights == True, provides the class labels of the training set
         """
-        super(deepIMPACT, self).__init__()
+        super(CPM_deep, self).__init__()
         
         self.save_hyperparameters()
         

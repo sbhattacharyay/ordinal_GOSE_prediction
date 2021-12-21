@@ -43,100 +43,26 @@ from sklearn.utils.class_weight import compute_class_weight
 from tqdm import tqdm
 
 # Custom methods
-from classes.datasets import IMPACT_CENTER_TBI
-from models.IMPACT import deepIMPACT
+from classes.datasets import CONCISE_PREDICTOR_SET
+from models.CPM import CPM_deep
 
-def parallel_training(
-    TRAINING_SET,
-    VAL_SET,
-    TESTING_SET,
-    TUNING_GRID,
-    REPEAT,
-    FOLD,
-    OUTPUT_DIR,
-    n_cores,
-    progress_bar=True,
-    progress_bar_desc=''):
-
-    # Shuffle list of tuning indices
-    shuffled_ti = np.random.choice(TUNING_GRID.TUNE_IDX.unique(),len(TUNING_GRID.TUNE_IDX.unique()),replace = False)
-    
-    # Partition tuning indices for the multiple cores
-    sizes = [len(shuffled_ti) // n_cores for _ in range(n_cores)]
-    sizes[:(len(shuffled_ti) - sum(sizes))] = [val+1 for val in sizes[:(len(shuffled_ti) - sum(sizes))]]    
-    end_indices = np.cumsum(sizes)
-    start_indices = np.insert(end_indices[:-1],0,0)
-    
-    # Build arguments for parallelization sub-function
-    arg_iterable = [(
-        TUNING_GRID[TUNING_GRID.TUNE_IDX.isin(shuffled_ti[start_indices[idx]:end_indices[idx]])],
-        TRAINING_SET,
-        VAL_SET,
-        TESTING_SET,
-        REPEAT,
-        FOLD,
-        OUTPUT_DIR,
-        progress_bar,
-        progress_bar_desc) 
-        for idx in range(len(start_indices))]
-    
-    # Run metric sub-function in parallel
-    with multiprocessing.Pool(n_cores) as pool:
-        pool.starmap(_model_training, arg_iterable)  
-        
-def _model_training(
-    TUNING_GRID,
-    TRAINING_SET,
-    VAL_SET,
-    TESTING_SET,
-    REPEAT,
-    FOLD,
-    OUTPUT_DIR,
-    progress_bar=True,
-    progress_bar_desc=''):
-
-    if progress_bar:
-        iterator = tqdm(TUNING_GRID.TUNE_IDX.unique(),desc=progress_bar_desc)
-    else:
-        iterator = TUNING_GRID.TUNE_IDX.unique()
-                
-    for curr_tune_idx in iterator:
-        
-        curr_tune_configs = TUNING_GRID[TUNING_GRID.TUNE_IDX == curr_tune_idx]
-        
-        curr_val_preds = train_deepIMPACT(TRAINING_SET,
-                                          VAL_SET,
-                                          TESTING_SET,
-                                          curr_tune_idx,
-                                          REPEAT,
-                                          FOLD,
-                                          OUTPUT_DIR,
-                                          curr_tune_configs.BATCH_SIZE.values[0],
-                                          curr_tune_configs.LEARNING_RATE.values[0],
-                                          curr_tune_configs.LAYERS.values[0],
-                                          curr_tune_configs.NEURONS.values[0],
-                                          curr_tune_configs.DROPOUT.values[0],
-                                          curr_tune_configs.ES_PATIENCE.values[0],
-                                          curr_tune_configs.EPOCHS.values[0],
-                                          curr_tune_configs.CLASS_WEIGHTS.values[0],
-                                          curr_tune_configs.OUTPUT_ACTIVATION.values[0])
-                    
-def train_deepIMPACT(TRAINING_SET,
-                     VAL_SET,
-                     TESTING_SET,
-                     TUNE_IDX,
-                     REPEAT,
-                     FOLD,
-                     OUTPUT_DIR,
-                     BATCH_SIZE,
-                     LEARNING_RATE,
-                     LAYERS,
-                     NEURONS,
-                     DROPOUT,
-                     ES_PATIENCE,
-                     EPOCHS,
-                     CLASS_WEIGHTS,
-                     OUTPUT_ACTIVATION):
+# Train CPM_deep
+def train_CPM_deep(TRAINING_SET,
+                   VAL_SET,
+                   TESTING_SET,
+                   TUNE_IDX,
+                   REPEAT,
+                   FOLD,
+                   OUTPUT_DIR,
+                   BATCH_SIZE,
+                   LEARNING_RATE,
+                   LAYERS,
+                   NEURONS,
+                   DROPOUT,
+                   ES_PATIENCE,
+                   EPOCHS,
+                   CLASS_WEIGHTS,
+                   OUTPUT_ACTIVATION):
     """
     Args:
         TRAINING_SET (pd.DataFrame)
@@ -162,9 +88,9 @@ def train_deepIMPACT(TRAINING_SET,
     os.makedirs(tune_model_dir,exist_ok = True)
     
     # Create PyTorch Dataset objects
-    train_Dataset = IMPACT_CENTER_TBI(TRAINING_SET,OUTPUT_ACTIVATION)
-    val_Dataset = IMPACT_CENTER_TBI(VAL_SET,OUTPUT_ACTIVATION)
-    test_Dataset = IMPACT_CENTER_TBI(TESTING_SET,OUTPUT_ACTIVATION)
+    train_Dataset = CONCISE_PREDICTOR_SET(TRAINING_SET,OUTPUT_ACTIVATION)
+    val_Dataset = CONCISE_PREDICTOR_SET(VAL_SET,OUTPUT_ACTIVATION)
+    test_Dataset = CONCISE_PREDICTOR_SET(TESTING_SET,OUTPUT_ACTIVATION)
     
     # Create PyTorch DataLoader objects
     curr_train_DL = DataLoader(train_Dataset,
@@ -180,14 +106,14 @@ def train_deepIMPACT(TRAINING_SET,
                              shuffle=False)
     
     # Initialize current model class based on hyperparameter selections
-    model = deepIMPACT(train_Dataset.X.shape[1],
-                       LAYERS,
-                       NEURONS,
-                       DROPOUT,
-                       OUTPUT_ACTIVATION,
-                       LEARNING_RATE,
-                       CLASS_WEIGHTS,
-                       train_Dataset.y)
+    model = CPM_deep(train_Dataset.X.shape[1],
+                     LAYERS,
+                     NEURONS,
+                     DROPOUT,
+                     OUTPUT_ACTIVATION,
+                     LEARNING_RATE,
+                     CLASS_WEIGHTS,
+                     train_Dataset.y)
     
     early_stop_callback = EarlyStopping(
         monitor='val_AUROC',
@@ -213,7 +139,7 @@ def train_deepIMPACT(TRAINING_SET,
     
     trainer.fit(model,curr_train_DL,curr_val_DL)
     
-    best_model = deepIMPACT.load_from_checkpoint(checkpoint_callback.best_model_path)
+    best_model = CPM_deep.load_from_checkpoint(checkpoint_callback.best_model_path)
     best_model.eval()
     
     # Save validation set probabilities
