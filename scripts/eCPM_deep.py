@@ -1,4 +1,4 @@
-#### Master Script 6: Train deep learning extended concise-predictor-based models (eCPM) ####
+#### Master Script #: Train deep learning extended concise-predictor-based models (eCPM) ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge
@@ -6,6 +6,8 @@
 #
 ### Contents:
 # I. Initialisation
+# II. Create grid of training combinations
+# III. Train eCPM_deep model based on provided hyperparameter row index
 
 ### I. Initialisation
 # Fundamental libraries
@@ -68,7 +70,11 @@ os.makedirs(model_dir,exist_ok=True)
 cv_splits = pd.read_csv('../cross_validation_splits.csv')
 
 # Load the tuning grid
-tuning_grid = pd.read_csv(os.path.join(model_dir,'eCPM_deep_tuning_grid.csv'))
+# tuning_grid = pd.read_csv(os.path.join(model_dir,'eCPM_deep_tuning_grid.csv'))
+# tuning_grid['TUNE_IDX'] = tuning_grid['TUNE_IDX'].astype(str).str.zfill(4)
+# tuning_grid['NEURONS'] = tuning_grid['NEURONS'].apply(eval)
+
+tuning_grid = pd.read_csv(os.path.join(model_dir,'eCPM_post_repeat_'+str(16).zfill(2)+'_deep_tuning_grid.csv'))
 tuning_grid['TUNE_IDX'] = tuning_grid['TUNE_IDX'].astype(str).str.zfill(4)
 tuning_grid['NEURONS'] = tuning_grid['NEURONS'].apply(eval)
 
@@ -82,7 +88,7 @@ uniq_tune_idx = tuning_grid[['key','TUNE_IDX']]
 cv_ti_combos = pd.merge(uniq_splits,uniq_tune_idx,how='outer',on='key').drop(columns='key')
 
 # Define which repeat partitions to train in current run
-REPEAT = [1]
+REPEAT = [i for i in range(17,21)]
 cv_ti_combos = cv_ti_combos[cv_ti_combos.repeat.isin(REPEAT)].reset_index(drop=True)
 
 ### III. Train eCPM_deep model based on provided hyperparameter row index
@@ -102,7 +108,7 @@ def main(array_task_id):
     os.makedirs(fold_dir,exist_ok=True)
     
     # Create a directory for the current tune index
-    tune_dir = os.path.join(fold_dir,'tune'+str(curr_TUNE_IDX).zfill(int(np.log10(cv_splits.fold.max()))+1))
+    tune_dir = os.path.join(fold_dir,'tune_'+str(curr_TUNE_IDX).zfill(int(np.log10(cv_splits.fold.max()))+1))
     os.makedirs(tune_dir,exist_ok=True)
     
     # Load current imputed training and testing sets
@@ -110,25 +116,20 @@ def main(array_task_id):
     testing_set = pd.read_csv('/home/sb2406/rds/hpc-work/imputed_eCPM_sets/repeat'+str(curr_repeat).zfill(2)+'/fold'+str(curr_fold)+'/testing_set.csv')
 
     # One-hot encode categorical predictors
-#     cat_encoder = OneHotEncoder(drop = 'first',categories=[[1,2,3,4,5,6],[1,2,3,4,5,6],[0,1,2]])
-    cat_encoder = OneHotEncoder(drop = 'first',categories=[[1,2,3,4,5,6],[1,2,3,4,5,6],[0,1,2],[1,2,3,4,5,6,7,8,9,10],[0,1,2,3,4,5],[0,1,2,3,88],[1,2,3,4,5,6]])
-
-#     cat_column_names = ['GCSm_'+str(i+1) for i in range(1,6)] + ['marshall_'+str(i+1) for i in range(1,6)] + ['unreactive_pupils_'+str(i+1) for i in range(2)]
+    cat_encoder = OneHotEncoder(drop = 'first',categories=[[1,2,3,4,5,6],[1,2,3,4,5,6],[0,1,2],[0,1,2,3,4,5],[1,2,3,4,5,6]])
     cat_column_names = ['GCSm_'+str(i+1) for i in range(1,6)] + \
     ['marshall_'+str(i+1) for i in range(1,6)] + \
     ['unreactive_pupils_'+str(i+1) for i in range(2)] + \
-    ['EmplmtStatus_'+str(i+1).zfill(2) for i in range(1,10)] + \
     ['EduLvlUSATyp_'+str(i+1) for i in range(5)] + \
-    ['LOCPTA_'+i for i in ['01','02','03','88']] + \
-    ['BrainInjuryAIS_'+str(i+1) for i in range(1,6)]
+    ['WorstHBCAIS_'+str(i+1) for i in range(1,6)]
     
-    training_categorical = pd.DataFrame(cat_encoder.fit_transform(training_set[['GCSm','marshall','unreactive_pupils','EmplmtStatus','EduLvlUSATyp','LOCPTA','BrainInjuryAIS']]).toarray(),
+    training_categorical = pd.DataFrame(cat_encoder.fit_transform(training_set[['GCSm','marshall','unreactive_pupils','EduLvlUSATyp','WorstHBCAIS']]).toarray(),
                                         columns=cat_column_names)
-    training_set = pd.concat([training_set.drop(columns=['GCSm','marshall','unreactive_pupils','EmplmtStatus','EduLvlUSATyp','LOCPTA','BrainInjuryAIS']),training_categorical],axis=1)
+    training_set = pd.concat([training_set.drop(columns=['GCSm','marshall','unreactive_pupils','EduLvlUSATyp','WorstHBCAIS']),training_categorical],axis=1)
 
-    testing_categorical = pd.DataFrame(cat_encoder.transform(testing_set[['GCSm','marshall','unreactive_pupils','EmplmtStatus','EduLvlUSATyp','LOCPTA','BrainInjuryAIS']]).toarray(),
+    testing_categorical = pd.DataFrame(cat_encoder.transform(testing_set[['GCSm','marshall','unreactive_pupils','EduLvlUSATyp','WorstHBCAIS']]).toarray(),
                                 columns=cat_column_names)
-    testing_set = pd.concat([testing_set.drop(columns=['GCSm','marshall','unreactive_pupils','EmplmtStatus','EduLvlUSATyp','LOCPTA','BrainInjuryAIS']),testing_categorical],axis=1)
+    testing_set = pd.concat([testing_set.drop(columns=['GCSm','marshall','unreactive_pupils','EduLvlUSATyp','WorstHBCAIS']),testing_categorical],axis=1)
 
     cp.dump(cat_encoder, open(os.path.join(fold_dir,'one_hot_encoder.pkl'), "wb"))
 
@@ -168,5 +169,5 @@ def main(array_task_id):
     
 if __name__ == '__main__':
     
-    array_task_id = int(sys.argv[1])    
+    array_task_id = int(sys.argv[1])
     main(array_task_id)

@@ -626,14 +626,14 @@ def interrepeat_dropout(
     
     return (dropped_tune_idx,viable_tuning_grid)
 
-def calc_auroc(pred_file_info, progress_bar = True, progress_bar_desc = ''):
+def calc_orc(pred_file_info, progress_bar = True, progress_bar_desc = ''):
     
     if progress_bar:
         iterator = tqdm(range(pred_file_info.shape[0]),desc=progress_bar_desc)
     else:
         iterator = range(pred_file_info.shape[0])
     
-    compiled_auroc = []
+    compiled_orc = []
         
     for idx in iterator:
         
@@ -647,7 +647,14 @@ def calc_auroc(pred_file_info, progress_bar = True, progress_bar_desc = ''):
         
         if curr_output == 'softmax':
             
-            curr_auroc = roc_auc_score(curr_preds.TrueLabel.values, curr_preds[prob_cols].values, multi_class='ovo')
+            aucs = []
+            for ix, (a, b) in enumerate(itertools.combinations(np.sort(curr_preds.TrueLabel.unique()), 2)):
+                filt_preds = curr_preds[curr_preds.TrueLabel.isin([a,b])].reset_index(drop=True)
+                filt_preds['ConditProb'] = filt_preds[prob_cols[b]]/(filt_preds[prob_cols[a]] + filt_preds[prob_cols[b]])
+                filt_preds['ConditProb'] = np.nan_to_num(filt_preds['ConditProb'],nan=.5,posinf=1,neginf=0)
+                filt_preds['ConditLabel'] = (filt_preds.TrueLabel == b).astype(int)
+                aucs.append(roc_auc_score(filt_preds['ConditLabel'],filt_preds['ConditProb']))
+            curr_orc = np.mean(aucs)
 
         elif curr_output == 'sigmoid':
 
@@ -661,14 +668,24 @@ def calc_auroc(pred_file_info, progress_bar = True, progress_bar_desc = ''):
             for col_idx in range(1,(curr_train_probs.shape[1])):
                 train_probs[:,col_idx] = curr_train_probs[:,col_idx-1] - curr_train_probs[:,col_idx]                
             
-            curr_auroc = roc_auc_score(curr_preds[label_cols].values.sum(1).astype(int), train_probs, multi_class='ovo')
-        
+            train_labels = curr_preds[label_cols].values.sum(1).astype(int)
+            aucs = []
+            for ix, (a, b) in enumerate(itertools.combinations(np.sort(np.unique(train_labels)), 2)):
+                a_mask = train_labels == a
+                b_mask = train_labels == b
+                ab_mask = np.logical_or(a_mask,b_mask)
+                condit_probs = train_probs[ab_mask,b]/(train_probs[ab_mask,a]+train_probs[ab_mask,b]) 
+                condit_probs = np.nan_to_num(condit_probs,nan=.5,posinf=1,neginf=0)
+                condit_labels = b_mask[ab_mask].astype(int)
+                aucs.append(roc_auc_score(condit_labels,condit_probs))            
+            curr_orc = np.mean(aucs)
+            
         curr_info_row = pred_file_info[pred_file_info.file == curr_file].reset_index(drop=True)
-        curr_info_row['val_AUROC'] = curr_auroc
+        curr_info_row['val_ORC'] = curr_orc
         
-        compiled_auroc.append(curr_info_row)
+        compiled_orc.append(curr_info_row)
     
-    return pd.concat(compiled_auroc,ignore_index = True)
+    return pd.concat(compiled_orc,ignore_index = True)
 
 def bs_dropout_auroc(bs_combos, val_file_info, bs_rs_GUPIs, curr_output, progress_bar = True, progress_bar_desc = ''):
 

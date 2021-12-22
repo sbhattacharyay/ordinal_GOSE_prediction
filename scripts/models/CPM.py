@@ -134,7 +134,17 @@ class CPM_deep(pl.LightningModule):
         
         if self.output_activation == 'softmax': 
             curr_train_probs = F.softmax(comp_yhats).cpu().numpy()
-            train_AUROC = roc_auc_score(comp_true_y, curr_train_probs, multi_class='ovo')
+            aucs = []
+            for ix, (a, b) in enumerate(itertools.combinations(np.sort(np.unique(comp_true_y)), 2)):
+                a_mask = comp_true_y == a
+                b_mask = comp_true_y == b
+                ab_mask = np.logical_or(a_mask,b_mask)
+                condit_probs = curr_train_probs[ab_mask,b]/(curr_train_probs[ab_mask,a]+curr_train_probs[ab_mask,b]) 
+                condit_probs = np.nan_to_num(condit_probs,nan=.5,posinf=1,neginf=0)
+                condit_labels = b_mask[ab_mask].astype(int)
+                aucs.append(roc_auc_score(condit_labels,condit_probs))            
+            train_AUROC = np.mean(aucs)
+            
         elif self.output_activation == 'sigmoid': 
             curr_train_probs = F.sigmoid(comp_yhats).cpu().numpy()
             comp_true_y = comp_true_y.sum(1).astype(int)
@@ -145,9 +155,18 @@ class CPM_deep(pl.LightningModule):
 
             for col_idx in range(1,(curr_train_probs.shape[1])):
                 train_probs[:,col_idx] = curr_train_probs[:,col_idx-1] - curr_train_probs[:,col_idx]                
-            
-            train_AUROC = roc_auc_score(comp_true_y, train_probs, multi_class='ovo')
-            
+                
+            aucs = []
+            for ix, (a, b) in enumerate(itertools.combinations(np.sort(np.unique(comp_true_y)), 2)):
+                a_mask = comp_true_y == a
+                b_mask = comp_true_y == b
+                ab_mask = np.logical_or(a_mask,b_mask)
+                condit_probs = train_probs[ab_mask,b]/(train_probs[ab_mask,a]+train_probs[ab_mask,b]) 
+                condit_probs = np.nan_to_num(condit_probs,nan=.5,posinf=1,neginf=0)
+                condit_labels = b_mask[ab_mask].astype(int)
+                aucs.append(roc_auc_score(condit_labels,condit_probs))            
+            train_AUROC = np.mean(aucs)
+                        
         self.log('train_AUROC', train_AUROC, prog_bar=True, logger=True, sync_dist=True, on_step=False, on_epoch=True)
         self.log('train_loss', comp_loss, prog_bar=False, logger=True, sync_dist=True, on_step=False, on_epoch=True)
     
@@ -168,8 +187,17 @@ class CPM_deep(pl.LightningModule):
             
             val_loss = F.cross_entropy(yhat, y)
             
-            val_AUROC = roc_auc_score(val_true_y, curr_val_probs, multi_class='ovo')
-            
+            aucs = []
+            for ix, (a, b) in enumerate(itertools.combinations(np.sort(np.unique(val_true_y)), 2)):
+                a_mask = val_true_y == a
+                b_mask = val_true_y == b
+                ab_mask = np.logical_or(a_mask,b_mask)
+                condit_probs = curr_val_probs[ab_mask,b]/(curr_val_probs[ab_mask,a]+curr_val_probs[ab_mask,b]) 
+                condit_probs = np.nan_to_num(condit_probs,nan=.5,posinf=1,neginf=0)
+                condit_labels = b_mask[ab_mask].astype(int)
+                aucs.append(roc_auc_score(condit_labels,condit_probs))            
+            val_AUROC = np.mean(aucs)
+                        
         elif self.output_activation == 'sigmoid': 
             
             curr_val_probs = F.sigmoid(yhat).cpu().numpy()
@@ -183,9 +211,18 @@ class CPM_deep(pl.LightningModule):
                 val_probs[:,col_idx] = curr_val_probs[:,col_idx-1] - curr_val_probs[:,col_idx]                
                                     
             val_loss = F.binary_cross_entropy_with_logits(yhat, y.type_as(yhat))
-                        
-            val_AUROC = roc_auc_score(val_true_y, val_probs, multi_class='ovo')
             
+            aucs = []
+            for ix, (a, b) in enumerate(itertools.combinations(np.sort(np.unique(val_true_y)), 2)):
+                a_mask = val_true_y == a
+                b_mask = val_true_y == b
+                ab_mask = np.logical_or(a_mask,b_mask)
+                condit_probs = val_probs[ab_mask,b]/(val_probs[ab_mask,a]+val_probs[ab_mask,b]) 
+                condit_probs = np.nan_to_num(condit_probs,nan=.5,posinf=1,neginf=0)
+                condit_labels = b_mask[ab_mask].astype(int)
+                aucs.append(roc_auc_score(condit_labels,condit_probs))            
+            val_AUROC = np.mean(aucs)
+                        
         else:
             raise ValueError("Invalid output layer type. Must be 'softmax' or 'sigmoid'")
         

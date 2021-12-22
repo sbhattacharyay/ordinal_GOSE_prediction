@@ -1,4 +1,4 @@
-#### Master Script 6: Train deep learning concise-predictor-based models (CPM) ####
+#### Master Script 6a: Train deep learning concise-predictor-based models (CPM) ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge
@@ -104,7 +104,7 @@ def main(array_task_id):
     os.makedirs(fold_dir,exist_ok=True)
     
     # Create a directory for the current tune index
-    tune_dir = os.path.join(fold_dir,'tune'+str(curr_TUNE_IDX).zfill(int(np.log10(cv_splits.fold.max()))+1))
+    tune_dir = os.path.join(fold_dir,'tune_'+str(curr_TUNE_IDX).zfill(int(np.log10(cv_splits.fold.max()))+1))
     os.makedirs(tune_dir,exist_ok=True)
     
     # Load current imputed training and testing sets
@@ -161,5 +161,5 @@ def main(array_task_id):
     
 if __name__ == '__main__':
     
-    array_task_id = int(sys.argv[1])    
+    array_task_id = int(sys.argv[1])
     main(array_task_id)
