@@ -1,4 +1,4 @@
-#### Master Script #b: Perform interrepeat hyperparameter configuration dropout on deep learning extended concise-predictor-based models (eCPM) ####
+#### Master Script 10b: Perform interrepeat hyperparameter configuration dropout on deep learning all-predictor-based models (APM) ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge
@@ -67,7 +67,7 @@ REPEAT = 20
 VERSION = 'DEEP_v1-0'
 
 # Define model output directory based on version code
-model_dir = '/home/sb2406/rds/hpc-work/eCPM_outputs/'+VERSION
+model_dir = '/home/sb2406/rds/hpc-work/APM_outputs/'+VERSION
 
 # Load cross-validation information to get GUPI and outcomes
 cv_splits = pd.read_csv('../cross_validation_splits.csv')
@@ -85,13 +85,13 @@ NUM_RESAMP = 1000
 # Load tuning grid based on the last completed repeat
 if REPEAT == 1:
 
-    tuning_grid = pd.read_csv(os.path.join(model_dir,'eCPM_deep_tuning_grid.csv'))
+    tuning_grid = pd.read_csv(os.path.join(model_dir,'APM_deep_tuning_grid.csv'))
     tuning_grid['TUNE_IDX'] = tuning_grid['TUNE_IDX'].astype(str).str.zfill(4)
     tuning_grid['NEURONS'] = tuning_grid['NEURONS'].apply(eval)
     
 else:
     
-    tuning_grid = pd.read_csv(os.path.join(model_dir,'eCPM_post_repeat_'+str(REPEAT).zfill(2)+'_deep_tuning_grid.csv'))
+    tuning_grid = pd.read_csv(os.path.join(model_dir,'APM_post_repeat_'+str(REPEAT).zfill(2)+'_deep_tuning_grid.csv'))
     tuning_grid['TUNE_IDX'] = tuning_grid['TUNE_IDX'].astype(str).str.zfill(4)
     tuning_grid['NEURONS'] = tuning_grid['NEURONS'].apply(eval)
     
@@ -104,7 +104,7 @@ for path in Path(model_dir).rglob('*/val_predictions.csv'):
 # Characterise validation prediction file information
 val_pred_file_info_df = pd.DataFrame({'file':val_pred_files,
                                       'TUNE_IDX':[re.search('tune_(.*)/', curr_file).group(1) for curr_file in val_pred_files],
-                                      'VERSION':[re.search('eCPM_outputs/(.*)/repeat', curr_file).group(1) for curr_file in val_pred_files],
+                                      'VERSION':[re.search('APM_outputs/(.*)/repeat', curr_file).group(1) for curr_file in val_pred_files],
                                       'repeat':[int(re.search('/repeat(.*)/fold', curr_file).group(1)) for curr_file in val_pred_files],
                                       'fold':[int(re.search('/fold(.*)/tune_', curr_file).group(1)) for curr_file in val_pred_files]
                                      }).sort_values(by=['repeat','fold','TUNE_IDX','VERSION']).reset_index(drop=True)
@@ -136,7 +136,7 @@ opt_tune_idx = across_cv_perf[across_cv_perf.groupby('OUTPUT_ACTIVATION')['val_O
 
 ### III. Prepare bootstrapping resamples for configuration dropout  
 # Create directory for storing dropout bootstrapping information
-dropout_dir = os.path.join('/home/sb2406/rds/hpc-work/interrepeat_dropout','eCPM_deep',VERSION)
+dropout_dir = os.path.join('/home/sb2406/rds/hpc-work/interrepeat_dropout','APM_deep',VERSION)
 os.makedirs(dropout_dir,exist_ok=True)
 
 # Create stratified resamples for bootstrapping
@@ -200,7 +200,7 @@ print(str(len(dropped_tis))+' tuning indices out of '+str(tuning_grid.shape[0])+
 
 # Update viable tuning grid and save
 viable_tuning_grid = tuning_grid[~tuning_grid.TUNE_IDX.isin(dropped_tis)].reset_index(drop=True)
-viable_tuning_grid.to_csv(os.path.join(model_dir,'eCPM_post_repeat_'+str(REPEAT).zfill(2)+'_deep_tuning_grid.csv'),index=False)
+viable_tuning_grid.to_csv(os.path.join(model_dir,'APM_post_repeat_'+str(REPEAT).zfill(2)+'_deep_tuning_grid.csv'),index=False)
 
 # Clear disk space by deleting folders of dropped out models
 dropped_configs = val_pred_file_info_df[~val_pred_file_info_df.TUNE_IDX.isin(viable_tuning_grid.TUNE_IDX)].reset_index(drop=True)
@@ -250,8 +250,8 @@ sigmoid_val_preds['TUNE_IDX'] = sigmoid_val_preds['TUNE_IDX'].astype(str).str.zf
 sigmoid_test_preds['TUNE_IDX'] = sigmoid_test_preds['TUNE_IDX'].astype(str).str.zfill(4)
 
 # Save prediction files appropriately
-softmax_val_preds.to_csv(os.path.join(model_dir,'eCPM_deepMN_compiled_val_predictions.csv'),index=True)
-softmax_test_preds.to_csv(os.path.join(model_dir,'eCPM_deepMN_compiled_test_predictions.csv'),index=True)
+softmax_val_preds.to_csv(os.path.join(model_dir,'APM_deepMN_compiled_val_predictions.csv'),index=True)
+softmax_test_preds.to_csv(os.path.join(model_dir,'APM_deepMN_compiled_test_predictions.csv'),index=True)
 
-sigmoid_val_preds.to_csv(os.path.join(model_dir,'eCPM_deepOR_compiled_val_predictions.csv'),index=True)
-sigmoid_test_preds.to_csv(os.path.join(model_dir,'eCPM_deepOR_compiled_test_predictions.csv'),index=True)
+sigmoid_val_preds.to_csv(os.path.join(model_dir,'APM_deepOR_compiled_val_predictions.csv'),index=True)
+sigmoid_test_preds.to_csv(os.path.join(model_dir,'APM_deepOR_compiled_test_predictions.csv'),index=True)

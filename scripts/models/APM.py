@@ -32,8 +32,8 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import confusion_matrix, accuracy_score, roc_auc_score
 
-# DeepCENTERTBI
-class deepCENTERTBI(pl.LightningModule):
+# deep learning APM model
+class APM_deep(pl.LightningModule):
     def __init__(self,n_tokens,layers,neurons,dropout,output_activation,learning_rate,class_weights,targets):
         """
         Args:
@@ -46,7 +46,7 @@ class deepCENTERTBI(pl.LightningModule):
             class_weights (boolean): identifies whether loss should be weighted against class frequency
             targets (NumPy array): if class_weights == True, provides the class labels of the training set
         """
-        super(deepCENTERTBI, self).__init__()
+        super(APM_deep, self).__init__()
         
         self.save_hyperparameters()
         self.n_tokens = n_tokens
@@ -228,10 +228,10 @@ class deepCENTERTBI(pl.LightningModule):
         optimizer = optim.Adam(self.parameters(),lr=self.learning_rate)
         return optimizer
     
-# DeepCENTERTBI modification for SHAP calculation
-class shapCENTERTBI(nn.Module):
+# deep learning APM model modification for SHAP calculation
+class shap_APM_deep(nn.Module):
     def __init__(self,vocab_embed_matrix,hidden2gose,prob=False,thresh=False):
-        super(shapCENTERTBI, self).__init__()
+        super(shap_APM_deep, self).__init__()
         self.vocab_embed_matrix = vocab_embed_matrix
         self.hidden2gose = hidden2gose
         self.prob = prob

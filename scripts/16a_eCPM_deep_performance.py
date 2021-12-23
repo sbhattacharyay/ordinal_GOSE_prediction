@@ -1,4 +1,4 @@
-#### Master Script #a: Assess eCPM_DeepMN and eCPM_DeepOR performance ####
+#### Master Script 16a: Assess eCPM_DeepMN and eCPM_DeepOR performance ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge

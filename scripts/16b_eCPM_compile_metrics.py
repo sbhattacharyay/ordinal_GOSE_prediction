@@ -1,4 +1,4 @@
-#### Master Script #b: Compile eCPM_DeepMN and eCPM_DeepOR performance metrics and calculate confidence intervals ####
+#### Master Script 16b: Compile eCPM_DeepMN and eCPM_DeepOR performance metrics and calculate confidence intervals ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge

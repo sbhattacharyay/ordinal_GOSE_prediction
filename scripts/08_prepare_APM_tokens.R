@@ -43,24 +43,24 @@ cv.folds <- read.csv('../cross_validation_splits.csv')
 
 ### II. Load and prepare formatted CENTER-TBI predictor tokens
 # Load baseline numeric predictors
-baseline <- read.csv('../CENTER-TBI/formatted_predictors/numeric_baseline_predictors.csv',
+baseline <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_baseline_predictors.csv',
                      na.strings=c("NA","NaN",""," "))
-er.labs <- read.csv('../CENTER-TBI/formatted_predictors/numeric_er_labs.csv',
+er.labs <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_er_labs.csv',
                     na.strings=c("NA","NaN",""," "))
-er.ct.imaging <- read.csv('../CENTER-TBI/formatted_predictors/numeric_er_ct_imaging.csv',
+er.ct.imaging <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_er_ct_imaging.csv',
                           na.strings=c("NA","NaN",""," ")) %>%
   rename(BaselineERCTFrames = BaselineERFrames)
-er.mr.imaging <- read.csv('../CENTER-TBI/formatted_predictors/numeric_er_mr_imaging.csv',
+er.mr.imaging <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_er_mr_imaging.csv',
                           na.strings=c("NA","NaN",""," ")) %>%
   rename(BaselineERMRFrames = BaselineERFrames)
-rpq.outcomes <- read.csv('../CENTER-TBI/formatted_predictors/numeric_rpq_outcomes.csv',
+rpq.outcomes <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_rpq_outcomes.csv',
                          na.strings=c("NA","NaN",""," ")) %>%
   rename_with(~ paste0('Baseline',.x),.cols = -GUPI) %>%
   mutate(BaselineRPQDate = as.POSIXct(BaselineRPQDate,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
   filter(BaselineRPQDate <= LastTokenTimeStamp) %>%
   select(-LastTokenTimeStamp)
-goat.outcomes <- read.csv('../CENTER-TBI/formatted_predictors/numeric_goat_outcomes.csv',
+goat.outcomes <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_goat_outcomes.csv',
                           na.strings=c("NA","NaN",""," ")) %>%
   rename_with(~ paste0('Baseline',.x),.cols = -GUPI) %>%
   mutate(BaselineGOATDate = as.POSIXct(BaselineGOATDate,tz = 'GMT')) %>%
@@ -69,14 +69,14 @@ goat.outcomes <- read.csv('../CENTER-TBI/formatted_predictors/numeric_goat_outco
   select(-LastTokenTimeStamp)
 
 # Load timestamped, single-event numeric predictors
-biomarkers <- read.csv('../CENTER-TBI/formatted_predictors/numeric_biomarkers.csv',
+biomarkers <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_biomarkers.csv',
                        na.strings=c("NA","NaN",""," ")) %>%
   mutate(Timestamp = as.POSIXct(Timestamp,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
   filter(Timestamp <= LastTokenTimeStamp) %>%
   select(-LastTokenTimeStamp)
 
-central.haemostasis <- read.csv('../CENTER-TBI/formatted_predictors/numeric_central_haemostasis.csv',
+central.haemostasis <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_central_haemostasis.csv',
                                 na.strings=c("NA","NaN",""," ")) %>%
   mutate(Timestamp = as.POSIXct(Timestamp,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
@@ -84,7 +84,7 @@ central.haemostasis <- read.csv('../CENTER-TBI/formatted_predictors/numeric_cent
   select(-LastTokenTimeStamp)
 names(central.haemostasis)<-gsub("\\_","",names(central.haemostasis))
 
-ct.imaging <- read.csv('../CENTER-TBI/formatted_predictors/numeric_ct_imaging.csv',
+ct.imaging <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_ct_imaging.csv',
                        na.strings=c("NA","NaN",""," ")) %>%
   mutate(Timestamp = as.POSIXct(Timestamp,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
@@ -92,28 +92,28 @@ ct.imaging <- read.csv('../CENTER-TBI/formatted_predictors/numeric_ct_imaging.cs
   select(-LastTokenTimeStamp) %>%
   rename(CTFrames = Frames)
 
-dh.values <- read.csv('../CENTER-TBI/formatted_predictors/numeric_daily_hourly.csv',
+dh.values <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_daily_hourly.csv',
                       na.strings=c("NA","NaN",""," ")) %>%
   mutate(Timestamp = as.POSIXct(Timestamp,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
   filter(Timestamp <= LastTokenTimeStamp) %>%
   select(-LastTokenTimeStamp)
 
-daily.TIL <-read.csv('../CENTER-TBI/formatted_predictors/numeric_daily_TIL.csv',
+daily.TIL <-read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_daily_TIL.csv',
                      na.strings=c("NA","NaN",""," ")) %>%
   mutate(Timestamp = as.POSIXct(Timestamp,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
   filter(Timestamp <= LastTokenTimeStamp) %>%
   select(-LastTokenTimeStamp)
 
-labs <-read.csv('../CENTER-TBI/formatted_predictors/numeric_labs.csv',
+labs <-read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_labs.csv',
                 na.strings=c("NA","NaN",""," ")) %>%
   mutate(Timestamp = as.POSIXct(Timestamp,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
   filter(Timestamp <= LastTokenTimeStamp) %>%
   select(-LastTokenTimeStamp)
 
-mr.imaging <- read.csv('../CENTER-TBI/formatted_predictors/numeric_mr_imaging.csv',
+mr.imaging <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_mr_imaging.csv',
                        na.strings=c("NA","NaN",""," ")) %>%
   mutate(Timestamp = as.POSIXct(Timestamp,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
@@ -122,7 +122,7 @@ mr.imaging <- read.csv('../CENTER-TBI/formatted_predictors/numeric_mr_imaging.cs
   rename(MRFrames = Frames)
 
 # Load dated, single-event numeric predictors
-daily.vitals <-read.csv('../CENTER-TBI/formatted_predictors/numeric_daily_vitals.csv',
+daily.vitals <-read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_daily_vitals.csv',
                         na.strings=c("NA","NaN",""," ")) %>%
   mutate(DVDate = as.POSIXct(DVDate,tz = 'GMT')) %>%
   left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%
@@ -130,7 +130,7 @@ daily.vitals <-read.csv('../CENTER-TBI/formatted_predictors/numeric_daily_vitals
   select(-LastTokenTimeStamp)
 
 # Load timestamped, interval numeric predictors
-surgeries.cranial <- read.csv('../CENTER-TBI/formatted_predictors/numeric_surgeries_cranial.csv',
+surgeries.cranial <- read.csv('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors/numeric_surgeries_cranial.csv',
                               na.strings=c("NA","NaN",""," ")) %>%
   mutate(StartTimeStamp = as.POSIXct(StartTimeStamp,tz = 'GMT'),
          EndTimeStamp = as.POSIXct(EndTimeStamp,tz = 'GMT')) %>%
@@ -140,7 +140,7 @@ surgeries.cranial <- read.csv('../CENTER-TBI/formatted_predictors/numeric_surger
 
 ### III. Convert formatted predictors to tokens for each repeated cross-validation partition
 # Create directory to store cross-validation formatted tokens
-dir.create('../APM_tokens', showWarnings = F, recursive = T)
+dir.create('/home/sb2406/rds/hpc-work/APM_tokens', showWarnings = F, recursive = T)
 
 repeats <- unique(cv.folds$repeat.)
 folds <- unique(cv.folds$fold)
@@ -154,7 +154,7 @@ for (curr.repeat in 8){
     NUM.CUTS = 20
     
     # Create directory to store final formatted tokens of the corresponding number of cuts
-    fold.dir = file.path('../APM_tokens',sprintf('repeat%02.f',curr.repeat),sprintf('fold%01.f',curr.fold))
+    fold.dir = file.path('/home/sb2406/rds/hpc-work/APM_tokens',sprintf('repeat%02.f',curr.repeat),sprintf('fold%01.f',curr.fold))
     dir.create(fold.dir,showWarnings = F, recursive = T)
     
     # Train cuts for discretization of time of day
@@ -274,7 +274,7 @@ for (curr.repeat in 8){
     foreach(curr.GUPI = study.GUPIs,.inorder = F) %dopar%{
       
       # Load categorical tokens of current GUPI and append time of day and baseline indicators 
-      curr.tokens <- read.csv(file.path('../CENTER-TBI/formatted_predictors',curr.GUPI,'categorical_tokens.csv')) %>%
+      curr.tokens <- read.csv(file.path('/home/sb2406/rds/hpc-work/CENTER-TBI/formatted_predictors',curr.GUPI,'categorical_tokens.csv')) %>%
         mutate(TimeStampStart = as.POSIXct(TimeStampStart,tz = 'GMT'),
                TimeStampEnd = as.POSIXct(TimeStampEnd,tz = 'GMT')) %>%
         left_join(icu.timestamps %>% select(GUPI,LastTokenTimeStamp),by = 'GUPI') %>%

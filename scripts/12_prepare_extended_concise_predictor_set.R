@@ -1,4 +1,4 @@
-#### Master Script #: Prepare extended concise predictor set for ordinal prediction ####
+#### Master Script 12: Prepare extended concise predictor set for ordinal prediction ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge

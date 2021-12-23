@@ -1,4 +1,4 @@
-#### Master Script #: Train deep learning extended concise-predictor-based models (eCPM) ####
+#### Master Script 15a: Train deep learning extended concise-predictor-based models (eCPM) ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge

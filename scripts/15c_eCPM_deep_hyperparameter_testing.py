@@ -1,4 +1,4 @@
-#### Master Script #c: Calculate ORC in bootstrapping resamples to determine dropout configurations ####
+#### Master Script 15c: Calculate ORC in bootstrapping resamples to determine dropout configurations ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge
