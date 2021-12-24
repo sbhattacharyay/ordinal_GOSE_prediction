@@ -1,4 +1,4 @@
-#### Master Script 15b: Perform interrepeat hyperparameter configuration dropout on deep learning extended concise-predictor-based models (eCPM) ####
+#### Master Script 16b: Perform interrepeat hyperparameter configuration dropout on deep learning extended concise-predictor-based models (eCPM) ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge

@@ -1,4 +1,4 @@
-#### Master Script 13: Train logistic regression extended concise-predictor-based models (eCPM) ####
+#### Master Script 14: Train logistic regression extended concise-predictor-based models (eCPM) ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge

@@ -1,4 +1,4 @@
-#### Master Script 14: Assess eCPM_MNLR and eCPM_POLR performance ####
+#### Master Script 15: Assess eCPM_MNLR and eCPM_POLR performance ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge
