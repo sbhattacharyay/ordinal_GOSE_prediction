@@ -32,6 +32,7 @@ from sklearn.utils.class_weight import compute_class_weight
 
 # StatsModel methods
 from statsmodels.nonparametric.smoothers_lowess import lowess
+from statsmodels.miscmodels.ordinal_model import OrderedModel
 
 # TQDM for progress tracking
 from tqdm import tqdm
@@ -373,8 +374,93 @@ def calc_bs_thresh_calibration(curr_resamples, compiled_test_preds, progress_bar
             
             TrueProb = lowess(endog = gt, exog = prob_gt, it = 0, xvals = np.linspace(0,1,200))
                                     
-            calib_axes = pd.DataFrame({'Threshold':thresh_labels[thresh-1],'PredProb':np.linspace(0,1,200),'TrueProb':TrueProb})
+            calib_axes = pd.DataFrame({'RESAMPLE_IDX':curr_resamples.RESAMPLE_IDX[curr_rs_row],'Threshold':thresh_labels[thresh-1],'PredProb':np.linspace(0,1,200),'TrueProb':TrueProb})
                         
             compiled_calibs.append(calib_axes)
                 
     return pd.concat(compiled_calibs,ignore_index = True)
+
+# Function to perform ordinal regression analysis
+def ordinal_analysis(split_df,analysis_dir,characteristics='CPM',progress_bar=True):
+    
+    if progress_bar:
+        progress_bar_desc = 'Ordinal regression analysis on '+characteristics+' characteristics'
+        iterator = tqdm(range(split_df.shape[0]),desc=progress_bar_desc)
+    else:
+        iterator = range(split_df.shape[0])
+    
+    outputs = []
+    
+    for curr_split_row in iterator:
+        
+        # Get current fold and repeat
+        curr_repeat = split_df.repeat[curr_split_row]
+        curr_fold = split_df.fold[curr_split_row]
+        
+        # Create directories for current repeat and fold
+        repeat_dir = os.path.join(analysis_dir,'repeat'+str(curr_repeat).zfill(2))
+        os.makedirs(repeat_dir,exist_ok=True)
+        
+        fold_dir = os.path.join(repeat_dir,'fold'+str(curr_fold).zfill(1))
+        os.makedirs(fold_dir,exist_ok=True)
+
+        # Load characteristics based on current choice
+        training_set = pd.read_csv('../imputed_'+characteristics+'_sets/repeat'+str(curr_repeat).zfill(2)+'/fold'+str(curr_fold)+'/training_set.csv')
+        testing_set = pd.read_csv('../imputed_'+characteristics+'_sets/repeat'+str(curr_repeat).zfill(2)+'/fold'+str(curr_fold)+'/testing_set.csv')
+        
+        # Compile training and testing set into single dataframe
+        complete_set = pd.concat([training_set,testing_set],ignore_index=True)
+        
+        # Encode variables based on intended characteristic set
+        if characteristics == 'CPM':
+            
+            # One-hot encode categorical predictors
+            cat_encoder = OneHotEncoder(drop = 'first',categories=[[1,2,3,4,5,6],[1,2,3,4,5,6],[0,1,2]])
+
+            cat_column_names = ['GCSm_'+str(i+1) for i in range(1,6)] + \
+            ['marshall_'+str(i+1) for i in range(1,6)] + \
+            ['unreactive_pupils_'+str(i+1) for i in range(2)]
+
+            complete_categorical = pd.DataFrame(cat_encoder.fit_transform(complete_set[['GCSm','marshall','unreactive_pupils']]).toarray(),
+                                                columns=cat_column_names)
+            complete_set = pd.concat([complete_set.drop(columns=['GCSm','marshall','unreactive_pupils']),complete_categorical],axis=1)
+            
+        elif characteristics == 'eCPM':
+            
+            # One-hot encode categorical predictors
+            cat_encoder = OneHotEncoder(drop = 'first',categories=[[1,2,3,4,5,6],[1,2,3,4,5,6],[0,1,2],[0,1,2,3,4,5],[1,2,3,4,5,6]])
+
+            cat_column_names = ['GCSm_'+str(i+1) for i in range(1,6)] + \
+            ['marshall_'+str(i+1) for i in range(1,6)] + \
+            ['unreactive_pupils_'+str(i+1) for i in range(2)] + \
+            ['EduLvlUSATyp_'+str(i+1) for i in range(5)] + \
+            ['WorstHBCAIS_'+str(i+1) for i in range(1,6)]
+
+            complete_categorical = pd.DataFrame(cat_encoder.fit_transform(complete_set[['GCSm','marshall','unreactive_pupils','EduLvlUSATyp','WorstHBCAIS']]).toarray(),
+                                                columns=cat_column_names)
+            complete_set = pd.concat([complete_set.drop(columns=['GCSm','marshall','unreactive_pupils','EduLvlUSATyp','WorstHBCAIS']),complete_categorical],axis=1)
+            
+        # Convert GOSE to ordered category type
+        complete_set['GOSE'] = complete_set['GOSE'].astype(CategoricalDtype(categories=['1', '2_or_3', '4', '5', '6', '7', '8'],ordered=True))
+        
+        # Train POLR on complete set and save trained result
+        POLR = OrderedModel(complete_set['GOSE'],
+                            complete_set[complete_set.columns[~complete_set.columns.isin(['GUPI','GOSE'])]],
+                            distr='logit')
+        res_POLR = POLR.fit(method='bfgs',
+                            maxiter = 1000,
+                            disp=False)
+        res_POLR.save(os.path.join(fold_dir,'CPM_polr.pkl'))
+        
+        # Merge salient results into dataframe
+        output_df = pd.DataFrame({'COEF':res_POLR.params,'STDERR':res_POLR.bse,'Z':-stats.norm.ppf(res_POLR.pvalues)}).reset_index().rename(columns={'index':'Predictor'})
+        
+        # Add current parition info
+        output_df['repeat'] = curr_repeat
+        output_df['fold'] = curr_fold
+        
+        # Append to compiled result list
+        outputs.append(output_df)
+        
+    # Returned compiled version of output dataframes
+    return pd.concat(outputs,ignore_index=True)
