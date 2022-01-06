@@ -109,3 +109,5 @@ In this `.py` file, we perform ordinal regression analysis on summary characteri
 
 ### 19. [Visualise study results for manuscript](scripts/19_manuscript_visualisations.R)
 In this `.R` file, we produce the figures for the manuscript and the supplementary figures. The large majority of the quantitative figures in the manuscript are produced using the `ggplot` package.
+
+## Citation
