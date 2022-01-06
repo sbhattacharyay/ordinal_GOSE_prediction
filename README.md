@@ -21,14 +21,19 @@ The code on this repository is commented throughout to provide a description of 
 All of the code used in this work can be found in the `./scripts` directory as Python (`.py`), R (`.R`), or bash (`.sh`) scripts. Moreover, custom classes have been saved in the `./scripts/classes` sub-directory, custom functions have been saved in the `./scripts/functions` sub-directory, and custom PyTorch models have been saved in the `./scripts/models` sub-directory.
 
 ### 1. [Extract study sample from CENTER-TBI dataset](scripts/01_extract_study_sample.py)
+In this `.py` file, we extract the study sample from the CENTER-TBI dataset, filter patients by our study criteria, and convert ICU timestamps to machine-readable format.
 
 ### 2. [Partition CENTER-TBI for stratified, repeated k-fold cross-validation](scripts/02_partition_for_repeated_cv.py)
+In this `.py` file, we create 100 partitions, stratified by 6-month GOSE, for repeated k-fold cross-validation, and save the splits into a dataframe for subsequent scripts.
 
 ### 3. [Prepare concise predictor set for ordinal prediction](scripts/03_prepare_concise_predictor_set.R)
+In this `.R` file, we perform multiple imputation with chained equations (MICE, m = 100) on the concise predictor set for CPM training. The training set for each repeated k-fold CV partition is used to train an independent predictive mean matching imputation function for that partition. The result is 100 imputations, one for each repeated k-fold cross validation partition.
 
 ### 4. [Train logistic regression concise-predictor-based models (CPM)](scripts/04_CPM_logreg.py)
+In this `.py` file, 
 
 ### 5. [Assess CPM_MNLR and CPM_POLR performance](scripts/05_CPM_logreg_performance.py)
+In this `.py` file,
 
 ### 6. Train and optimise CPM_DeepMN and CPM_DeepOR
 
@@ -46,8 +51,10 @@ All of the code used in this work can be found in the `./scripts` directory as P
 </ol>
 
 ### 8. [Prepare predictor tokens for the training of all-predictor-based models (APMs)](scripts/08_prepare_APM_tokens.R)
+In this `.R` file,
 
 ### 9. [Train APM dictionaries and convert tokens to embedding layer indices](scripts/09_prepare_APM_dictionaries.py)
+In this `.py` file,
 
 ### 10. Train and optimise APM_MN and APM_OR
 
@@ -74,10 +81,13 @@ All of the code used in this work can be found in the `./scripts` directory as P
 </ol>
 
 ### 13. [Prepare extended concise predictor set for ordinal prediction](scripts/13_prepare_extended_concise_predictor_set.R)
+In this `.R` file,
 
 ### 14. [Train logistic regression extended concise-predictor-based models (eCPM)](scripts/14_eCPM_logreg.py)
+In this `.py` file,
 
 ### 15. [Assess eCPM_MNLR and eCPM_POLR performance](scripts/15_eCPM_logreg_performance.py)
+In this `.py` file,
 
 ### 16. Train and optimise eCPM_DeepMN and eCPM_DeepOR
 
@@ -95,5 +105,7 @@ All of the code used in this work can be found in the `./scripts` directory as P
 </ol>
 
 ### 18. [Perform ordinal regression analysis on study characteristics and predictors](scripts/18_ordinal_regression_analysis.py)
+In this `.py` file,
 
 ### 19. [Visualise study results for manuscript](scripts/19_manuscript_visualisations.R)
+In this `.R` file, we produce the figures for the manuscript and the supplementary figures. The large majority of the quantitative figures in the manuscript are produced using the `ggplot` package.
