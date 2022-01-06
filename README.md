@@ -30,19 +30,48 @@ All of the code used in this work can be found in the `./scripts` directory as P
 
 ### 5. [Assess CPM_MNLR and CPM_POLR performance](scripts/05_CPM_logreg_performance.py)
 
-### 6. []()
+### 6. Train and optimise CPM_DeepMN and CPM_DeepOR
 
-### 7. []()
+<ol type="a">
+  <h4><li><a href="scripts/06a_CPM_deep.py">Train deep learning concise-predictor-based models (CPM)</a></li></h4>
+  <h4><li><a href="scripts/06b_CPM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning concise-predictor-based models (CPM)</a></li></h4>
+  <h4><li><a href="scripts/06c_CPM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></li></h4>
+</ol>
+
+### 7. Calculate and compile CPM_DeepMN and CPM_DeepOR metrics
+
+<ol type="a">
+  <h4><li><a href="scripts/07a_CPM_deep_performance.py">Assess CPM_DeepMN and CPM_DeepOR performance</a></li></h4>
+  <h4><li><a href="scripts/07b_CPM_compile_metrics.py">Compile CPM_DeepMN and CPM_DeepOR performance metrics and calculate confidence intervals</a></li></h4>
+</ol>
 
 ### 8. [Prepare predictor tokens for the training of all-predictor-based models (APMs)](scripts/08_prepare_APM_tokens.R)
 
 ### 9. [Train APM dictionaries and convert tokens to embedding layer indices](scripts/09_prepare_APM_dictionaries.py)
 
-### 10. []()
+### 10. Train and optimise APM_MN and APM_OR
 
-### 11. []()
+<ol type="a">
+  <h4><li><a href="scripts/10a_APM_deep.py">Train deep learning all-predictor-based models (APM)</a></li></h4>
+  <h4><li><a href="scripts/10b_APM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning all-predictor-based models (APM)</a></li></h4>
+  <h4><li><a href="scripts/10c_APM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></li></h4>
+</ol>
 
-### 12. []()
+### 11. Calculate and compile APM_MN and APM_OR metrics
+
+<ol type="a">
+  <h4><li><a href="scripts/11a_APM_deep_performance.py">Assess APM_DeepMN and APM_DeepOR performance</a></li></h4>
+  <h4><li><a href="scripts/11b_APM_compile_metrics.py">Compile APM_DeepMN and APM_DeepOR performance metrics and calculate confidence intervals</a></li></h4>
+</ol>
+
+### 12. Assess feature significance in APM_MN
+
+<ol type="a">
+  <h4><li><a href="scripts/12a_APM_deep_SHAP.py">Calculate SHAP values for APM_DeepMN</a></li></h4>
+  <h4><li><a href="scripts/12b_APM_compile_SHAP.py">Compile SHAP values for each GUPI-output type combination from APM_DeepMN</a></li></h4>
+  <h4><li><a href="scripts/12c_APM_summarise_SHAP.py">Summarise SHAP values across study set</a></li></h4>
+  <h4><li><a href="scripts/12d_APM_compile_significance_weights.py">Summarise aggregation weights across trained APM set</a></li></h4>
+</ol>
 
 ### 13. [Prepare extended concise predictor set for ordinal prediction](scripts/13_prepare_extended_concise_predictor_set.R)
 
@@ -50,9 +79,20 @@ All of the code used in this work can be found in the `./scripts` directory as P
 
 ### 15. [Assess eCPM_MNLR and eCPM_POLR performance](scripts/15_eCPM_logreg_performance.py)
 
-### 16. []()
+### 16. Train and optimise eCPM_DeepMN and eCPM_DeepOR
 
-### 17. []()
+<ol type="a">
+  <h4><li><a href="scripts/16a_eCPM_deep.py">Train deep learning extended concise-predictor-based models (eCPM)</a></li></h4>
+  <h4><li><a href="scripts/16b_eCPM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning extended concise-predictor-based models (eCPM)</a></li></h4>
+  <h4><li><a href="scripts/16c_eCPM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></li></h4>
+</ol>
+
+### 17. Calculate and compile eCPM_DeepMN and eCPM_DeepOR metrics
+
+<ol type="a">
+  <h4><li><a href="scripts/17a_eCPM_deep_performance.py">Assess eCPM_DeepMN and eCPM_DeepOR performance</a></li></h4>
+  <h4><li><a href="scripts/17b_eCPM_compile_metrics.py">Compile eCPM_DeepMN and eCPM_DeepOR performance metrics and calculate confidence intervals</a></li></h4>
+</ol>
 
 ### 18. [Perform ordinal regression analysis on study characteristics and predictors](scripts/18_ordinal_regression_analysis.py)
 
