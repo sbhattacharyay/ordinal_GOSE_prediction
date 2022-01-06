@@ -1,1 +1,1 @@
-# Imputed extended concise predictor sets
+# Imputed concise predictor sets
