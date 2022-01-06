@@ -27,13 +27,13 @@ In this `.py` file, we extract the study sample from the CENTER-TBI dataset, fil
 In this `.py` file, we create 100 partitions, stratified by 6-month GOSE, for repeated k-fold cross-validation, and save the splits into a dataframe for subsequent scripts.
 
 ### 3. [Prepare concise predictor set for ordinal prediction](scripts/03_prepare_concise_predictor_set.R)
-In this `.R` file, we perform multiple imputation with chained equations (MICE, m = 100) on the concise predictor set for CPM training. The training set for each repeated k-fold CV partition is used to train an independent predictive mean matching imputation function for that partition. The result is 100 imputations, one for each repeated k-fold cross validation partition.
+In this `.R` file, we perform multiple imputation with chained equations (MICE, m = 100) on the concise predictor set for CPM training. The training set for each repeated k-fold CV partition is used to train an independent predictive mean matching imputation transformation for that partition. The result is 100 imputations, one for each repeated k-fold cross validation partition.
 
 ### 4. [Train logistic regression concise-predictor-based models (CPM)](scripts/04_CPM_logreg.py)
-In this `.py` file, 
+In this `.py` file, we define a function to train logistic regression CPMs given the repeated cross-validation dataframe. Then we perform parallelised training of logistic regression CPMs and testing set prediction. Finally, we compile testing set predictions.
 
 ### 5. [Assess CPM_MNLR and CPM_POLR performance](scripts/05_CPM_logreg_performance.py)
-In this `.py` file,
+In this `.py` file, we create and save bootstrapping resamples used for all model performance evaluation. We prepare compiled CPM_MNLR and CPM_POLR testing set predictions, and calculate/save performance metrics.
 
 ### 6. Train and optimise CPM_DeepMN and CPM_DeepOR
 
