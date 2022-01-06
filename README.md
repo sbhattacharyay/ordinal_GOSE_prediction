@@ -38,16 +38,16 @@ In this `.py` file, we create and save bootstrapping resamples used for all mode
 ### 6. Train and optimise CPM_DeepMN and CPM_DeepOR
 
 <ol type="a">
-  <h4><li><a href="scripts/06a_CPM_deep.py">Train deep learning concise-predictor-based models (CPM)</a></li></h4>
-  <h4><li><a href="scripts/06b_CPM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning concise-predictor-based models (CPM)</a></li></h4>
-  <h4><li><a href="scripts/06c_CPM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></li></h4>
+  <li><h4><a href="scripts/06a_CPM_deep.py">Train deep learning concise-predictor-based models (CPM)</a></h4> In this <code>.py</code> file, we first create a grid of tuning configuration-cross-validation combinations and train CPM_DeepMN or CPM_DeepOR models based on provided hyperparameter row index. This is run, with multi-array indexing, on the HPC using a <a href="scripts/06a_CPM_deep.sh">bash script</a>.</li>
+  <li><h4><a href="scripts/06b_CPM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning concise-predictor-based models (CPM)</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/06c_CPM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></h4> In this <code>.py</code> file, </li>
 </ol>
 
 ### 7. Calculate and compile CPM_DeepMN and CPM_DeepOR metrics
 
 <ol type="a">
-  <h4><li><a href="scripts/07a_CPM_deep_performance.py">Assess CPM_DeepMN and CPM_DeepOR performance</a></li></h4>
-  <h4><li><a href="scripts/07b_CPM_compile_metrics.py">Compile CPM_DeepMN and CPM_DeepOR performance metrics and calculate confidence intervals</a></li></h4>
+  <li><h4><a href="scripts/07a_CPM_deep_performance.py">Assess CPM_DeepMN and CPM_DeepOR performance</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/07b_CPM_compile_metrics.py">Compile CPM_DeepMN and CPM_DeepOR performance metrics and calculate confidence intervals</a></h4> In this <code>.py</code> file, </li>
 </ol>
 
 ### 8. [Prepare predictor tokens for the training of all-predictor-based models (APMs)](scripts/08_prepare_APM_tokens.R)
@@ -59,25 +59,25 @@ In this `.py` file, we train APM dictionaries per repeated cross-validation part
 ### 10. Train and optimise APM_MN and APM_OR
 
 <ol type="a">
-  <h4><li><a href="scripts/10a_APM_deep.py">Train deep learning all-predictor-based models (APM)</a></li></h4>
-  <h4><li><a href="scripts/10b_APM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning all-predictor-based models (APM)</a></li></h4>
-  <h4><li><a href="scripts/10c_APM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></li></h4>
+  <li><h4><a href="scripts/10a_APM_deep.py">Train deep learning all-predictor-based models (APM)</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/10b_APM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning all-predictor-based models (APM)</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/10c_APM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></h4> In this <code>.py</code> file, </li>
 </ol>
 
 ### 11. Calculate and compile APM_MN and APM_OR metrics
 
 <ol type="a">
-  <h4><li><a href="scripts/11a_APM_deep_performance.py">Assess APM_DeepMN and APM_DeepOR performance</a></li></h4>
-  <h4><li><a href="scripts/11b_APM_compile_metrics.py">Compile APM_DeepMN and APM_DeepOR performance metrics and calculate confidence intervals</a></li></h4>
+  <li><h4><a href="scripts/11a_APM_deep_performance.py">Assess APM_DeepMN and APM_DeepOR performance</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/11b_APM_compile_metrics.py">Compile APM_DeepMN and APM_DeepOR performance metrics and calculate confidence intervals</a></h4> In this <code>.py</code> file, </li>
 </ol>
 
 ### 12. Assess feature significance in APM_MN
 
 <ol type="a">
-  <h4><li><a href="scripts/12a_APM_deep_SHAP.py">Calculate SHAP values for APM_DeepMN</a></li></h4>
-  <h4><li><a href="scripts/12b_APM_compile_SHAP.py">Compile SHAP values for each GUPI-output type combination from APM_DeepMN</a></li></h4>
-  <h4><li><a href="scripts/12c_APM_summarise_SHAP.py">Summarise SHAP values across study set</a></li></h4>
-  <h4><li><a href="scripts/12d_APM_compile_significance_weights.py">Summarise aggregation weights across trained APM set</a></li></h4>
+  <li><h4><a href="scripts/12a_APM_deep_SHAP.py">Calculate SHAP values for APM_DeepMN</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/12b_APM_compile_SHAP.py">Compile SHAP values for each GUPI-output type combination from APM_DeepMN</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/12c_APM_summarise_SHAP.py">Summarise SHAP values across study set</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/12d_APM_compile_significance_weights.py">Summarise aggregation weights across trained APM set</a></h4> In this <code>.py</code> file, </li>
 </ol>
 
 ### 13. [Prepare extended concise predictor set for ordinal prediction](scripts/13_prepare_extended_concise_predictor_set.R)
@@ -92,16 +92,16 @@ In this `.py` file, we load the common bootstrapping resamples (that will be use
 ### 16. Train and optimise eCPM_DeepMN and eCPM_DeepOR
 
 <ol type="a">
-  <h4><li><a href="scripts/16a_eCPM_deep.py">Train deep learning extended concise-predictor-based models (eCPM)</a></li></h4>
-  <h4><li><a href="scripts/16b_eCPM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning extended concise-predictor-based models (eCPM)</a></li></h4>
-  <h4><li><a href="scripts/16c_eCPM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></li></h4>
+  <li><h4><a href="scripts/16a_eCPM_deep.py">Train deep learning extended concise-predictor-based models (eCPM)</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/16b_eCPM_deep_interrepeat_dropout.py">Perform interrepeat hyperparameter configuration dropout on deep learning extended concise-predictor-based models (eCPM)</a></h4> In this <code>.py</code> file, we calculate ORC of extant validation predictions, prepare bootstrapping resamples for configuration dropout, and dropout configurations that are consistently (<span>&#593;</span> = .05) inferior in performance </li>
+  <li><h4><a href="scripts/16c_eCPM_deep_hyperparameter_testing.py">Calculate ORC in bootstrapping resamples to determine dropout configurations</a></h4> In this <code>.py</code> file, </li>
 </ol>
 
 ### 17. Calculate and compile eCPM_DeepMN and eCPM_DeepOR metrics
 
 <ol type="a">
-  <h4><li><a href="scripts/17a_eCPM_deep_performance.py">Assess eCPM_DeepMN and eCPM_DeepOR performance</a></li></h4>
-  <h4><li><a href="scripts/17b_eCPM_compile_metrics.py">Compile eCPM_DeepMN and eCPM_DeepOR performance metrics and calculate confidence intervals</a></li></h4>
+  <li><h4><a href="scripts/17a_eCPM_deep_performance.py">Assess eCPM_DeepMN and eCPM_DeepOR performance</a></h4> In this <code>.py</code> file, </li>
+  <li><h4><a href="scripts/17b_eCPM_compile_metrics.py">Compile eCPM_DeepMN and eCPM_DeepOR performance metrics and calculate confidence intervals</a></h4> In this <code>.py</code> file, </li>
 </ol>
 
 ### 18. [Perform ordinal regression analysis on study characteristics and predictors](scripts/18_ordinal_regression_analysis.py)
