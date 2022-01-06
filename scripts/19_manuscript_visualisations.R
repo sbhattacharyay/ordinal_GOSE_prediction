@@ -11,7 +11,22 @@
 # IV. Figure 4a
 # V. Figure 4b
 # VI. Figure 5
-# Supplementary Figure 1
+# VII. Supplementary Figure 1
+# VIII. Supplementary Figure 2
+# IX. Supplementary Figure 3
+# X. Supplementary Figure 4
+# XI. Supplementary Figure 5
+# XII. Supplementary Figure 6
+# XIII. Supplementary Figure 7
+# XIV. Supplementary Figure 8
+# XV. Supplementary Figure 9
+# XVI. Supplementary Figure 10
+# XVII. Table 4
+# XVIII. Table 5
+# XIX. Supplementary Table 2, 3, and 4
+# XX. Supplementary Table 5, 6, and 7
+# XXI. Supplementary Appendix 3
+# XXII. Supplementary Appendix 4
 
 ### I. Initialisation
 # Import necessary libraries
@@ -22,6 +37,8 @@ library(rvg)
 library(svglite)
 library(viridis)
 library(lemon)
+library(VIM)
+library(latex2exp)
 
 ### II. Figure 2
 # Load a sample eCPM training set
@@ -491,7 +508,7 @@ top.predictor.shap.plot <- shap.plot.df %>%
                y = factor(order)), 
            width = 0.7, 
            position = position_stack(reverse = TRUE)) +
-  guides(fill = guide_legend(title = expression(bold(Output~nodes~of~APM[DeepMN]~(GOSE))),
+  guides(fill = guide_legend(title = expression(bold(Output~nodes~of~APM[MN]~(GOSE))),
                              nrow = 1)) +
   scale_x_continuous(expand = c(0,0),
                      breaks = seq(0,.06,by=.01))+
@@ -521,7 +538,31 @@ top.predictor.shap.plot <- shap.plot.df %>%
 dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
 ggsave(file.path('../plots',Sys.Date(),'shap_plot.svg'),top.predictor.shap.plot,device= svg,units='in',dpi=600,width=7.5,height = 5)
 
-### Supplementary Figure 1
+### VII. Supplementary Figure 1
+# Load cross-validation splits
+cv_splits = read.csv('../cross_validation_splits.csv')
+
+# Load IMPACT-specific variables from CENTER-TBI dataset
+CENTER_TBI_IMPACT = read.csv('../CENTER-TBI/IMPACT/data.csv',
+                             na.strings=c("NA","NaN","", " ")) %>%
+  rename(GUPI = entity_id) %>%
+  filter(GUPI %in% cv_splits$GUPI) %>%
+  select(-c(SiteCode,GCS,PatientType,GOSE,GUPI))
+
+# Shorten plot labels to fit
+plt.labels <- names(CENTER_TBI_IMPACT)
+plt.labels[1] <- "Age"
+plt.labels[2] <- "U.P."
+plt.labels[5] <- "Glu."
+plt.labels[6] <- "Hypoxia"
+plt.labels[7] <- "HoTN"
+plt.labels[8] <- "Marshall"
+plt.labels[9] <- "tSAH"
+
+# Produce both barplots of missing variables and combinations plot
+miss.aggr <- aggr(CENTER_TBI_IMPACT,numbers=TRUE,labels = plt.labels)
+
+### VIII. Supplementary Figure 2
 # Load normalised confusion matrix confidence intervals of CPM
 CPM.CI.confusion_matrices <- read.csv('../model_performance/CPM/CI_confusion_matrices.csv')
 
@@ -590,7 +631,7 @@ CPM.normalised.cm.plot <- CPM.CI.confusion_matrices %>%
 dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
 ggsave(file.path('../plots',Sys.Date(),'CPM_confusion_matrices.svg'),CPM.normalised.cm.plot,device= svg,units='in',dpi=600,width=6.5,height = 8.30)
 
-### Supplementary Figure 2
+### IX. Supplementary Figure 3
 # Load normalised confusion matrix confidence intervals of APM
 APM.CI.confusion_matrices <- read.csv('../model_performance/APM/CI_confusion_matrices.csv')
 
@@ -606,8 +647,8 @@ APM.CI.confusion_matrices <- APM.CI.confusion_matrices %>%
   rename(Model = MODEL) %>%
   mutate(formatted = sprintf('%.2f \n (%.2f–%.2f)',cm_prob_mean,cm_prob_lo,cm_prob_hi))
 
-levels(APM.CI.confusion_matrices$Model)= c("APM_DeepMN"=expression(bold(APM[DeepMN])),
-                                           "APM_DeepOR"=expression(bold(APM[DeepOR])))
+levels(APM.CI.confusion_matrices$Model)= c("APM_DeepMN"=expression(bold(APM[MN])),
+                                           "APM_DeepOR"=expression(bold(APM[OR])))
 
 #  Implement ggplot to visualise normalised confusion matrices
 APM.normalised.cm.plot <- APM.CI.confusion_matrices %>%
@@ -657,7 +698,7 @@ APM.normalised.cm.plot <- APM.CI.confusion_matrices %>%
 dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
 ggsave(file.path('../plots',Sys.Date(),'APM_confusion_matrices.svg'),APM.normalised.cm.plot,device= svg,units='in',dpi=600,width=6.5,height = 4.15)
 
-### Supplementary Figure 3
+### X. Supplementary Figure 4
 # Load normalised confusion matrix confidence intervals of eCPM
 eCPM.CI.confusion_matrices <- read.csv('../model_performance/eCPM/CI_confusion_matrices.csv')
 
@@ -726,7 +767,7 @@ eCPM.normalised.cm.plot <- eCPM.CI.confusion_matrices %>%
 dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
 ggsave(file.path('../plots',Sys.Date(),'eCPM_confusion_matrices.svg'),eCPM.normalised.cm.plot,device= svg,units='in',dpi=600,width=6.5,height = 8.30)
 
-### Supplementary Figure 4
+### XI. Supplementary Figure 5
 # Load ROC confidence intervals of CPM
 CPM.CI.ROCs <- read.csv('../model_performance/CPM/CI_ROCs.csv')
 
@@ -790,7 +831,7 @@ CPM.CI.AUC <- read.csv('../model_performance/CPM/CI_threshold_metrics.csv') %>%
   mutate(formatted = sprintf('%s: %.2f (%.2f–%.2f)',MODEL,mean,lo,hi)) %>%
   arrange(Threshold,MODEL)
 
-### Supplementary Figure 5
+### XII. Supplementary Figure 6
 # Load ROC confidence intervals of APM
 APM.CI.ROCs <- read.csv('../model_performance/APM/CI_ROCs.csv')
 
@@ -819,9 +860,9 @@ APM.ROC.curves.plot <- APM.CI.ROCs %>%
   geom_ribbon(aes(ymin = TPR_lo, ymax = TPR_hi, fill = Model), alpha = 0.3,size=.75/.pt,color=NA) +
   geom_line(aes(y = TPR_mean, color = Model), alpha = 1, size=1.3/.pt) +
   scale_fill_discrete(breaks=levels(APM.CI.ROCs$Model),
-                      labels=c(expression(APM[DeepMN]),expression(APM[DeepOR])))+
+                      labels=c(expression(APM[MN]),expression(APM[OR])))+
   scale_color_discrete(breaks=levels(APM.CI.ROCs$Model),
-                       labels=c(expression(APM[DeepMN]),expression(APM[DeepOR])))+
+                       labels=c(expression(APM[MN]),expression(APM[OR])))+
   theme_classic()+
   theme(
     strip.text = element_text(size=6, color = "black",face = 'bold'), 
@@ -854,7 +895,7 @@ APM.CI.AUC <- read.csv('../model_performance/APM/CI_threshold_metrics.csv') %>%
   mutate(formatted = sprintf('%s: %.2f (%.2f–%.2f)',MODEL,mean,lo,hi)) %>%
   arrange(Threshold,MODEL)
 
-### Supplementary Figure 6
+### XIII. Supplementary Figure 7
 # Load ROC confidence intervals of eCPM
 eCPM.CI.ROCs <- read.csv('../model_performance/eCPM/CI_ROCs.csv')
 
@@ -918,7 +959,7 @@ eCPM.CI.AUC <- read.csv('../model_performance/eCPM/CI_threshold_metrics.csv') %>
   mutate(formatted = sprintf('%s: %.2f (%.2f–%.2f)',MODEL,mean,lo,hi)) %>%
   arrange(Threshold,MODEL)
 
-### Supplementary Figure 7
+### XIV. Supplementary Figure 8
 # Load and compile calibration confidence intervals of CPM
 CPM.CI.calibration <- read.csv('../model_performance/CPM/CI_calibration.csv')
 
@@ -978,7 +1019,7 @@ CPM.CI.Emax <- read.csv('../model_performance/CPM/CI_threshold_metrics.csv') %>%
   mutate(formatted = sprintf('%.2f (%.2f–%.2f)',mean,lo,hi)) %>%
   arrange(Threshold,MODEL)
 
-### Supplementary Figure 8
+### XV. Supplementary Figure 9
 # Load and compile calibration confidence intervals of APM
 APM.CI.calibration <- read.csv('../model_performance/APM/CI_calibration.csv')
 
@@ -1003,9 +1044,9 @@ APM.calibration.curves.plot <- APM.CI.calibration %>%
   geom_ribbon(aes(ymin = TrueProb_lo, ymax = TrueProb_hi, fill = Model), alpha = 0.3,size=.75/.pt,color=NA) +
   geom_line(aes(y = TrueProb_mean, color = Model), alpha = 1, size=1.3/.pt) +
   scale_fill_discrete(breaks=levels(APM.CI.calibration$Model),
-                      labels=c(expression(APM[DeepMN]),expression(APM[DeepOR])))+
+                      labels=c(expression(APM[MN]),expression(APM[OR])))+
   scale_color_discrete(breaks=levels(APM.CI.calibration$Model),
-                       labels=c(expression(APM[DeepMN]),expression(APM[DeepOR])))+
+                       labels=c(expression(APM[MN]),expression(APM[OR])))+
   theme_classic()+
   theme(
     strip.text = element_text(size=6, color = "black",face = 'bold'), 
@@ -1038,7 +1079,7 @@ APM.CI.Emax <- read.csv('../model_performance/APM/CI_threshold_metrics.csv') %>%
   mutate(formatted = sprintf('%.2f (%.2f–%.2f)',mean,lo,hi)) %>%
   arrange(Threshold,MODEL)
 
-### Supplementary Figure 9
+### XVI. Supplementary Figure 10
 # Load and compile calibration confidence intervals of eCPM
 eCPM.CI.calibration <- read.csv('../model_performance/eCPM/CI_calibration.csv')
 
@@ -1098,7 +1139,7 @@ eCPM.CI.Emax <- read.csv('../model_performance/eCPM/CI_threshold_metrics.csv') %
   mutate(formatted = sprintf('%.2f (%.2f–%.2f)',mean,lo,hi)) %>%
   arrange(Threshold,MODEL)
 
-### Performance metrics table for CPM_best, APM_best, and eCPM_best
+### XVII. Table 4
 # Determine best overall performance metrics
 CPM.CI.overall.best <- read.csv('../model_performance/CPM/CI_overall_metrics.csv') %>%
   mutate(mean = case_when(METRIC == "S" ~ -mean,
@@ -1173,7 +1214,7 @@ best.performance.table <- rbind(best.overall.table,
                                 best.thresh.performance.table) %>%
   relocate(Threshold,.after=METRIC)
 
-### Calibration metrics table for CPM_best, APM_best, and eCPM_best
+### XVIII. Table 5
 # Load threshold-level calibration metrics and determine best model for each metric
 CPM.CI.calibration.ave <- read.csv('../model_performance/CPM/CI_threshold_metrics.csv') %>%
   filter(Threshold == 'Average', METRIC %in% c('ICI','E50','E90','Emax')) %>% 
@@ -1208,7 +1249,7 @@ best.calibration.table <- rbind(read.csv('../model_performance/CPM/CI_threshold_
   pivot_wider(names_from = PredType, id_cols = c(METRIC,Threshold),values_from = formatted) %>%
   arrange(METRIC,Threshold)
 
-### Performance metrics table for CPM, APM, and eCPM
+### XIX. Supplementary Table 2, 3, and 4
 # CPM performance table
 CPM.performance.table <- rbind(read.csv('../model_performance/CPM/CI_overall_metrics.csv') %>% 
                                  mutate(METRIC = factor(METRIC,levels = c('ORC','S','Gen_C','D_xy','Accuracy'))) %>%
@@ -1263,7 +1304,7 @@ eCPM.performance.table <- rbind(read.csv('../model_performance/eCPM/CI_overall_m
                                   arrange(METRIC,Threshold) %>%
                                   relocate(eCPM_MNLR,eCPM_POLR,eCPM_DeepMN,eCPM_DeepOR,.after=Threshold))
 
-### Calibration metrics table for CPM, APM, and eCPM
+### XX. Supplementary Table 5, 6, and 7
 # CPM calibration table
 CPM.calibration.table <- rbind(read.csv('../model_performance/CPM/CI_threshold_metrics.csv') %>%
                                  filter(METRIC %in% c('ICI','E50','E90','Emax')) %>% 
@@ -1286,10 +1327,580 @@ APM.calibration.table <- rbind(read.csv('../model_performance/APM/CI_threshold_m
 
 # eCPM calibration table
 eCPM.calibration.table <- rbind(read.csv('../model_performance/eCPM/CI_threshold_metrics.csv') %>%
-                                 filter(METRIC %in% c('ICI','E50','E90','Emax')) %>% 
-                                 mutate(formatted = sprintf('%.2f (%.2f–%.2f)',mean,lo,hi),
-                                        METRIC = factor(METRIC,levels = c('ICI','E50','E90','Emax'))) %>%
-                                 select(MODEL,Threshold,METRIC,formatted) %>%
-                                 pivot_wider(names_from = MODEL, id_cols = c(METRIC,Threshold),values_from = formatted) %>%
-                                 arrange(METRIC,Threshold) %>%
-                                 relocate(eCPM_MNLR,eCPM_POLR,eCPM_DeepMN,eCPM_DeepOR,.after=Threshold))
+                                  filter(METRIC %in% c('ICI','E50','E90','Emax')) %>% 
+                                  mutate(formatted = sprintf('%.2f (%.2f–%.2f)',mean,lo,hi),
+                                         METRIC = factor(METRIC,levels = c('ICI','E50','E90','Emax'))) %>%
+                                  select(MODEL,Threshold,METRIC,formatted) %>%
+                                  pivot_wider(names_from = MODEL, id_cols = c(METRIC,Threshold),values_from = formatted) %>%
+                                  arrange(METRIC,Threshold) %>%
+                                  relocate(eCPM_MNLR,eCPM_POLR,eCPM_DeepMN,eCPM_DeepOR,.after=Threshold))
+
+### XXI. Supplementary Appendix 3
+# Create dataframe of predicted and observed probabilities corresponding to random guessing
+random.calib.df <- data.frame(Threshold='GOSE > 3',
+                              PredProb = seq(0,1,length.out=1000),
+                              TrueProb = .8)
+
+# Implement ggplot to visualise random calibration curve
+random.calib.plot <- random.calib.df %>%
+  ggplot(aes(x=PredProb,y=TrueProb)) +
+  xlab("Predicted Probability") +
+  ylab("Observed Probability") +
+  coord_cartesian(ylim = c(0,1),xlim = c(0,1))+
+  geom_segment(x = 0, y = 0, xend = 1, yend = 1,alpha = 0.5,linetype = "dashed",size=.75/.pt, color = 'gray')+
+  geom_line(alpha = 1,size=1.5/.pt, color = '#F8766D')+
+  ggtitle('Random-guessing probability calibration plot')+
+  theme_classic()+
+  theme(
+    plot.title = element_text(size=7, color = "black",face = 'bold',hjust = .5), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.text.x = element_text(size = 5, color = "black"),
+    axis.text.y = element_text(size = 5, color = "black"),
+    axis.title.x = element_text(size = 7, color = "black",face = 'bold'),
+    axis.title.y = element_text(size = 7, color = "black",face = 'bold'),
+    panel.border = element_rect(colour = "black", fill=NA, size = 1/.pt),
+    aspect.ratio = 1,
+    plot.margin=grid::unit(c(0,0,0,0), "mm"),
+    axis.line = element_blank()
+  )
+
+# Create directory for current date and save calibration plot
+dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
+ggsave(file.path('../plots',Sys.Date(),'random_calibration.svg'),random.calib.plot,device= svg,units='in',dpi=600,width=3,height = 3)
+
+# Create dataframe to store distribution of prediction probabilities corresponding to random guessing
+random.thresh.probs <- data.frame(Threshold='GOSE > 3',
+                                  Prob = seq(0,1,length.out=1000))
+
+# Implement ggplot to create distribution histograms for calibration plots
+random.calib.dist.plot <- ggplot(data = random.thresh.probs) +
+  geom_histogram(aes(x = Prob, y = ..density..),bins = 1,fill='#F8766D',alpha=.75) +
+  geom_segment(inherit.aes = F,x=0,y = 0, xend = 1, yend = 0,size=.75/.pt, color = 'black')+
+  coord_cartesian(xlim = c(0,1),ylim = c(-30,30),expand = T) +
+  scale_y_symmetric(mid = 0) +
+  xlab("Predicted Probability") +
+  ylab("Observed Probability") +
+  ggtitle('Random-guessing probability calibration plot')+
+  theme_classic()+
+  theme(
+    plot.title = element_text(size=7, color = "black",face = 'bold',hjust = .5), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.text.x = element_text(size = 5, color = "black"),
+    axis.text.y = element_text(size = 5, color = "black"),
+    axis.title.x = element_text(size = 7, color = "black",face = 'bold'),
+    axis.title.y = element_text(size = 7, color = "black",face = 'bold'),
+    panel.border = element_rect(colour = "black", fill=NA, size = 1/.pt),
+    aspect.ratio = 1,
+    plot.margin=grid::unit(c(0,0,0,0), "mm"),
+    axis.line = element_blank()
+  )
+
+# Create directory for current date and save calibration distribution plots
+dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
+ggsave(file.path('../plots',Sys.Date(),'random_distribution.svg'),random.calib.dist.plot,device= svg,units='in',dpi=600,width=3,height = 3)
+
+# Create a dataframe for calibration error distribution
+random.calib.error <- data.frame(xmins = c(0,.2),
+                                 xmaxes = c(.2,.8),
+                                 ymins = c(0,0),
+                                 ymaxes=c(2,1))
+
+random.calib.error.line <- data.frame(x=c(0,0,.2,.2,.8,.8),y=c(0,2,2,1,1,0))
+
+random.calib.error.dist.plot <- ggplot(random.calib.error,aes(xmin=xmins, xmax=xmaxes, ymin=ymins, ymax=ymaxes))+
+  geom_rect(fill='gray',alpha=.5)+
+  geom_line(data=random.calib.error.line,inherit.aes = F,aes(x=x,y=y),size=.75/.pt)+
+  xlab(TeX(r'(Calibration Error ($| p_{obs} - p_{pred} |$))', bold=TRUE)) +
+  ylab("Density") +
+  ggtitle('Random-guessing calibration error distribution')+
+  coord_cartesian(ylim = c(0,2.5),xlim = c(0,.8))+
+  theme_classic()+
+  theme(
+    plot.title = element_text(size=7, color = "black",face = 'bold',hjust = .5), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.text.x = element_text(size = 5, color = "black"),
+    axis.text.y = element_text(size = 5, color = "black"),
+    axis.title.x = element_text(size = 7, color = "black",face = 'bold'),
+    axis.title.y = element_text(size = 7, color = "black",face = 'bold'),
+    panel.border = element_rect(colour = "black", fill=NA, size = 1/.pt),
+    aspect.ratio = 1,
+    plot.margin=grid::unit(c(0,0,0,0), "mm"),
+    axis.line = element_blank()
+  )
+
+# Create directory for current date and save calibration distribution plots
+dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
+ggsave(file.path('../plots',Sys.Date(),'random_calib_error_distribution.svg'),random.calib.error.dist.plot,device= svg,units='in',dpi=600,width=3,height = 3)
+
+# ICI shading of random calibration error distribution
+ICI.plot <- ggplot(random.calib.error,aes(xmin=xmins, xmax=xmaxes, ymin=ymins, ymax=ymaxes))+
+  geom_rect(fill='gray',alpha=.5)+
+  geom_rect(inherit.aes = FALSE,xmin=0, xmax=.2, ymin=0, ymax=2,fill='#F8766D',alpha=.2)+
+  geom_rect(inherit.aes = FALSE,xmin=.2, xmax=0.34, ymin=0, ymax=1,fill='#F8766D',alpha=.2)+
+  geom_line(data=random.calib.error.line,inherit.aes = F,aes(x=x,y=y),size=.75/.pt)+
+  xlab(TeX(r'(Calibration Error ($| p_{obs} - p_{pred} |$))', bold=TRUE)) +
+  ylab("Density") +
+  ggtitle('Random-guessing calibration error distribution')+
+  coord_cartesian(ylim = c(0,2.5),xlim = c(0,.8))+
+  theme_classic()+
+  theme(
+    plot.title = element_text(size=7, color = "black",face = 'bold',hjust = .5), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.text.x = element_text(size = 5, color = "black"),
+    axis.text.y = element_text(size = 5, color = "black"),
+    axis.title.x = element_text(size = 7, color = "black",face = 'bold'),
+    axis.title.y = element_text(size = 7, color = "black",face = 'bold'),
+    panel.border = element_rect(colour = "black", fill=NA, size = 1/.pt),
+    aspect.ratio = 1,
+    plot.margin=grid::unit(c(0,0,0,0), "mm"),
+    axis.line = element_blank()
+  )
+
+# Create directory for current date and save calibration distribution plots
+dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
+ggsave(file.path('../plots',Sys.Date(),'ICI_error_distribution.svg'),ICI.plot,device= svg,units='in',dpi=600,width=3,height = 3)
+
+# E50 shading of random calibration error distribution
+E50.plot <- ggplot(random.calib.error,aes(xmin=xmins, xmax=xmaxes, ymin=ymins, ymax=ymaxes))+
+  geom_rect(fill='gray',alpha=.5)+
+  geom_rect(inherit.aes = FALSE,xmin=0, xmax=.2, ymin=0, ymax=2,fill='#7CAE00',alpha=.2)+
+  geom_rect(inherit.aes = FALSE,xmin=.2, xmax=0.3, ymin=0, ymax=1,fill='#7CAE00',alpha=.2)+
+  geom_line(data=random.calib.error.line,inherit.aes = F,aes(x=x,y=y),size=.75/.pt)+
+  xlab(TeX(r'(Calibration Error ($| p_{obs} - p_{pred} |$))', bold=TRUE)) +
+  ylab("Density") +
+  ggtitle('Random-guessing calibration error distribution')+
+  coord_cartesian(ylim = c(0,2.5),xlim = c(0,.8))+
+  theme_classic()+
+  theme(
+    plot.title = element_text(size=7, color = "black",face = 'bold',hjust = .5), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.text.x = element_text(size = 5, color = "black"),
+    axis.text.y = element_text(size = 5, color = "black"),
+    axis.title.x = element_text(size = 7, color = "black",face = 'bold'),
+    axis.title.y = element_text(size = 7, color = "black",face = 'bold'),
+    panel.border = element_rect(colour = "black", fill=NA, size = 1/.pt),
+    aspect.ratio = 1,
+    plot.margin=grid::unit(c(0,0,0,0), "mm"),
+    axis.line = element_blank()
+  )
+
+# Create directory for current date and save calibration distribution plots
+dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
+ggsave(file.path('../plots',Sys.Date(),'E50_error_distribution.svg'),E50.plot,device= svg,units='in',dpi=600,width=3,height = 3)
+
+# E90 shading of random calibration error distribution
+E90.plot <- ggplot(random.calib.error,aes(xmin=xmins, xmax=xmaxes, ymin=ymins, ymax=ymaxes))+
+  geom_rect(fill='gray',alpha=.5)+
+  geom_rect(inherit.aes = FALSE,xmin=0, xmax=.2, ymin=0, ymax=2,fill='#00BFC4',alpha=.2)+
+  geom_rect(inherit.aes = FALSE,xmin=.2, xmax=0.7, ymin=0, ymax=1,fill='#00BFC4',alpha=.2)+
+  geom_line(data=random.calib.error.line,inherit.aes = F,aes(x=x,y=y),size=.75/.pt)+
+  xlab(TeX(r'(Calibration Error ($| p_{obs} - p_{pred} |$))', bold=TRUE)) +
+  ylab("Density") +
+  ggtitle('Random-guessing calibration error distribution')+
+  coord_cartesian(ylim = c(0,2.5),xlim = c(0,.8))+
+  theme_classic()+
+  theme(
+    plot.title = element_text(size=7, color = "black",face = 'bold',hjust = .5), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.text.x = element_text(size = 5, color = "black"),
+    axis.text.y = element_text(size = 5, color = "black"),
+    axis.title.x = element_text(size = 7, color = "black",face = 'bold'),
+    axis.title.y = element_text(size = 7, color = "black",face = 'bold'),
+    panel.border = element_rect(colour = "black", fill=NA, size = 1/.pt),
+    aspect.ratio = 1,
+    plot.margin=grid::unit(c(0,0,0,0), "mm"),
+    axis.line = element_blank()
+  )
+
+# Create directory for current date and save calibration distribution plots
+dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
+ggsave(file.path('../plots',Sys.Date(),'E90_error_distribution.svg'),E90.plot,device= svg,units='in',dpi=600,width=3,height = 3)
+
+# Emax shading of random calibration error distribution
+Emax.plot <- ggplot(random.calib.error,aes(xmin=xmins, xmax=xmaxes, ymin=ymins, ymax=ymaxes))+
+  geom_rect(fill='gray',alpha=.5)+
+  geom_rect(inherit.aes = FALSE,xmin=0, xmax=.2, ymin=0, ymax=2,fill='#C77CFF',alpha=.2)+
+  geom_rect(inherit.aes = FALSE,xmin=.2, xmax=0.8, ymin=0, ymax=1,fill='#C77CFF',alpha=.2)+
+  geom_line(data=random.calib.error.line,inherit.aes = F,aes(x=x,y=y),size=.75/.pt)+
+  xlab(TeX(r'(Calibration Error ($| p_{obs} - p_{pred} |$))', bold=TRUE)) +
+  ylab("Density") +
+  ggtitle('Random-guessing calibration error distribution')+
+  coord_cartesian(ylim = c(0,2.5),xlim = c(0,.8))+
+  theme_classic()+
+  theme(
+    plot.title = element_text(size=7, color = "black",face = 'bold',hjust = .5), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.text.x = element_text(size = 5, color = "black"),
+    axis.text.y = element_text(size = 5, color = "black"),
+    axis.title.x = element_text(size = 7, color = "black",face = 'bold'),
+    axis.title.y = element_text(size = 7, color = "black",face = 'bold'),
+    panel.border = element_rect(colour = "black", fill=NA, size = 1/.pt),
+    aspect.ratio = 1,
+    plot.margin=grid::unit(c(0,0,0,0), "mm"),
+    axis.line = element_blank()
+  )
+
+# Create directory for current date and save calibration distribution plots
+dir.create(file.path('../plots',Sys.Date()),showWarnings = F,recursive = T)
+ggsave(file.path('../plots',Sys.Date(),'Emax_error_distribution.svg'),Emax.plot,device= svg,units='in',dpi=600,width=3,height = 3)
+
+### XXII. Supplementary Appendix 4
+## CPM
+# Load tuning grids
+CPM.tuning.grid <- read.csv('../CPM_outputs/DEEP_v1-0/CPM_deep_tuning_grid.csv')
+CPM.tuning.grid$NEURONS[CPM.tuning.grid$LAYERS == 1] <- str_remove(CPM.tuning.grid$NEURONS[CPM.tuning.grid$LAYERS == 1], ',')
+CPM.tuning.grid <- CPM.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+CPM.post.r01.tuning.grid <- read.csv('../CPM_outputs/DEEP_v1-0/CPM_post_repeat_01_deep_tuning_grid.csv')
+CPM.post.r01.tuning.grid$NEURONS[CPM.post.r01.tuning.grid$LAYERS == 1] <- str_remove(CPM.post.r01.tuning.grid$NEURONS[CPM.post.r01.tuning.grid$LAYERS == 1], ',')
+CPM.post.r01.tuning.grid <- CPM.post.r01.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+CPM.post.r03.tuning.grid <- read.csv('../CPM_outputs/DEEP_v1-0/CPM_post_repeat_03_deep_tuning_grid.csv')
+CPM.post.r03.tuning.grid$NEURONS[CPM.post.r03.tuning.grid$LAYERS == 1] <- str_remove(CPM.post.r03.tuning.grid$NEURONS[CPM.post.r03.tuning.grid$LAYERS == 1], ',')
+CPM.post.r03.tuning.grid <- CPM.post.r03.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+CPM.post.r15.tuning.grid <- read.csv('../CPM_outputs/DEEP_v1-0/CPM_post_repeat_15_deep_tuning_grid.csv')
+CPM.post.r15.tuning.grid$NEURONS[CPM.post.r15.tuning.grid$LAYERS == 1] <- str_remove(CPM.post.r15.tuning.grid$NEURONS[CPM.post.r15.tuning.grid$LAYERS == 1], ',')
+CPM.post.r15.tuning.grid <- CPM.post.r15.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+CPM.final.DeepMN.tuning.grid <- read.csv('../CPM_outputs/DEEP_v1-0/CPM_final_deepMN_tuning_grid.csv')
+CPM.final.DeepMN.tuning.grid$NEURONS[CPM.final.DeepMN.tuning.grid$LAYERS == 1] <- str_remove(CPM.final.DeepMN.tuning.grid$NEURONS[CPM.final.DeepMN.tuning.grid$LAYERS == 1], ',')
+CPM.final.DeepMN.tuning.grid <- CPM.final.DeepMN.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+CPM.final.DeepOR.tuning.grid <- read.csv('../CPM_outputs/DEEP_v1-0/CPM_final_deepOR_tuning_grid.csv')
+CPM.final.DeepOR.tuning.grid$NEURONS[CPM.final.DeepOR.tuning.grid$LAYERS == 1] <- str_remove(CPM.final.DeepOR.tuning.grid$NEURONS[CPM.final.DeepOR.tuning.grid$LAYERS == 1], ',')
+CPM.final.DeepOR.tuning.grid <- CPM.final.DeepOR.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+# Create configuration count dataframe
+CPM.config.df <- rbind(
+  CPM.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=1),
+  CPM.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=1.8),
+  CPM.post.r01.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=2),
+  CPM.post.r01.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=3.8),
+  CPM.post.r03.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=4),
+  CPM.post.r03.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=15.8),
+  CPM.post.r15.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=16),
+  CPM.post.r15.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=20.8)
+)
+
+CPM.config.labels <- rbind(
+  CPM.post.r01.tuning.grid %>% 
+    group_by(OUTPUT_ACTIVATION) %>% 
+    count() %>% 
+    mutate(Repeat=2) %>% 
+    mutate(MODEL=plyr::mapvalues(OUTPUT_ACTIVATION,
+                                 from = c('softmax','sigmoid'),
+                                 to = c('CPM[DeepMN]','CPM[DeepOR]'))) %>%
+    mutate(PlotLabel=paste0(MODEL,': ',n)),
+  CPM.post.r03.tuning.grid %>% 
+    group_by(OUTPUT_ACTIVATION) %>% 
+    count() %>% 
+    mutate(Repeat=4) %>%
+    mutate(MODEL=plyr::mapvalues(OUTPUT_ACTIVATION,
+                                 from = c('softmax','sigmoid'),
+                                 to = c('CPM[DeepMN]','CPM[DeepOR]'))) %>%
+    mutate(PlotLabel=paste0(MODEL,': ',n)),
+  CPM.post.r15.tuning.grid %>% 
+    group_by(OUTPUT_ACTIVATION) %>% 
+    count() %>% 
+    mutate(Repeat=16) %>%
+    mutate(MODEL=plyr::mapvalues(OUTPUT_ACTIVATION,
+                                 from = c('softmax','sigmoid'),
+                                 to = c('CPM[DeepMN]','CPM[DeepOR]'))) %>%
+    mutate(PlotLabel=paste0(MODEL,': ',n))
+)
+
+# Create configuration count plot
+CPM.config.plot <-  ggplot(data=NULL,aes(x=Repeat,color=OUTPUT_ACTIVATION,y=n)) +
+  geom_line(data=CPM.config.df)+ 
+  geom_point(data=CPM.config.labels) +
+  geom_label(data=CPM.config.labels,
+             aes(label=n),
+             hjust = 0, 
+             nudge_x = 0.05,
+             parse=TRUE,
+             label.size = NA,
+             show.legend = FALSE)+
+  coord_trans(y="log2")+
+  scale_y_continuous(breaks=2^seq(0,11),limits = c(1,2200))+
+  scale_x_continuous(breaks=seq(1,20,by=1),minor_breaks = seq(1,21,by=.2),limits=c(.8,21),expand=c(0,0))+
+  theme_bw()+
+  xlab("Cross-validation partition (repeat as labelled major grid, fold as minor grid)")+
+  ylab(expression(bold(Number~of~trained~configurations~(log[2]~scale))))+
+  scale_color_discrete(breaks=c('softmax','sigmoid'),
+                       limits=c('softmax','sigmoid'),
+                       name = 'CPM',
+                       labels=c(expression(CPM[DeepMN]),expression(CPM[DeepOR])))+
+  theme(
+    panel.grid.minor.y = element_blank(),
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.title.y = element_text(color = "black",face = 'bold'),
+    axis.title.x = element_text(color = "black",face = 'bold'),
+    legend.position = 'bottom',
+    legend.title = element_text(color = "black",face = 'bold')
+  )
+
+# Combine all tuning grids into single dataframe
+compiled.CPM.tuning.grids <- rbind(
+  CPM.tuning.grid %>% mutate(LastCompleted = 'Base'),
+  CPM.post.r01.tuning.grid %>% mutate(LastCompleted = 'Repeat 01'),
+  CPM.post.r03.tuning.grid %>% mutate(LastCompleted = 'Repeat 03'),
+  CPM.post.r15.tuning.grid %>% mutate(LastCompleted = 'Repeat 15')
+)
+
+# Calculate overall count of configurations by last completed partition
+CPM.total.config.df <- compiled.CPM.tuning.grids %>%
+  group_by(OUTPUT_ACTIVATION,LastCompleted) %>%
+  summarise(TotalConfigs = n())
+
+# Calculate count and proportion of each of the variable hyperparameters at each last completed partition
+CPM.proportion.df <- compiled.CPM.tuning.grids %>%
+  select(c(OUTPUT_ACTIVATION,LastCompleted,LAYERS,MEDIAN_NEURONS_PER_LAYER,DROPOUT)) %>%
+  pivot_longer(cols = -c(OUTPUT_ACTIVATION,LastCompleted),names_to = 'Hyperparameter') %>%
+  group_by(OUTPUT_ACTIVATION,LastCompleted,Hyperparameter,value) %>%
+  count() %>%
+  left_join(CPM.total.config.df,by = c('OUTPUT_ACTIVATION','LastCompleted')) %>%
+  rowwise() %>%
+  mutate(Percentage = 100*n/TotalConfigs) %>%
+  mutate(formatted =sprintf('%d (%.01f%%)',n,Percentage)) %>%
+  select(c(OUTPUT_ACTIVATION,LastCompleted,Hyperparameter,value,formatted)) %>%
+  pivot_wider(id_cols = c(OUTPUT_ACTIVATION,Hyperparameter,value),names_from = LastCompleted,values_from = formatted) %>%
+  replace(is.na(.), '0 (0%)')
+
+## APM
+# Load tuning grids
+APM.tuning.grid <- read.csv('../APM_outputs/DEEP_v1-0/APM_deep_tuning_grid.csv')
+APM.tuning.grid$NEURONS[APM.tuning.grid$LAYERS == 1] <- str_remove(APM.tuning.grid$NEURONS[APM.tuning.grid$LAYERS == 1], ',')
+APM.tuning.grid <- APM.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+APM.post.r01.f1.tuning.grid <- read.csv('../APM_outputs/DEEP_v1-0/APM_post_repeat_01_fold_1_deep_tuning_grid.csv')
+APM.post.r01.f1.tuning.grid$NEURONS[APM.post.r01.f1.tuning.grid$LAYERS == 1] <- str_remove(APM.post.r01.f1.tuning.grid$NEURONS[APM.post.r01.f1.tuning.grid$LAYERS == 1], ',')
+APM.post.r01.f1.tuning.grid <- APM.post.r01.f1.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+APM.post.r10.tuning.grid <- read.csv('../APM_outputs/DEEP_v1-0/APM_post_repeat_10_deep_tuning_grid.csv')
+APM.post.r10.tuning.grid$NEURONS[APM.post.r10.tuning.grid$LAYERS == 1] <- str_remove(APM.post.r10.tuning.grid$NEURONS[APM.post.r10.tuning.grid$LAYERS == 1], ',')
+APM.post.r10.tuning.grid <- APM.post.r10.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+# Create configuration count dataframe
+APM.config.df <- rbind(
+  APM.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=1),
+  APM.post.r01.f1.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=1.2),
+  APM.post.r01.f1.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=10.8),
+  APM.post.r10.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=11),
+  APM.post.r10.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=20.8)
+)
+
+APM.config.labels <- rbind(
+  APM.post.r01.f1.tuning.grid %>% 
+    group_by(OUTPUT_ACTIVATION) %>% 
+    count() %>% 
+    mutate(Repeat=1.2) %>% 
+    mutate(MODEL=plyr::mapvalues(OUTPUT_ACTIVATION,
+                                 from = c('softmax','sigmoid'),
+                                 to = c('APM[MN]','APM[OR]'))) %>%
+    mutate(PlotLabel=paste0(MODEL,': ',n)),
+  APM.post.r10.tuning.grid %>% 
+    group_by(OUTPUT_ACTIVATION) %>% 
+    count() %>% 
+    mutate(Repeat=11) %>%
+    mutate(MODEL=plyr::mapvalues(OUTPUT_ACTIVATION,
+                                 from = c('softmax','sigmoid'),
+                                 to = c('APM[MN]','APM[OR]'))) %>%
+    mutate(PlotLabel=paste0(MODEL,': ',n))
+)
+
+# Create configuration count plot
+APM.config.plot <-  ggplot(data=NULL,aes(x=Repeat,color=OUTPUT_ACTIVATION,y=n)) +
+  geom_line(data=APM.config.df)+ 
+  geom_point(data=APM.config.labels) +
+  geom_label(data=APM.config.labels,
+             aes(label=n),
+             hjust = 0, 
+             nudge_x = 0.05,
+             parse=TRUE,
+             label.size = NA,
+             show.legend = FALSE)+
+  coord_trans(y="log2")+
+  scale_y_continuous(breaks=2^seq(0,11),limits = c(1,2200))+
+  scale_x_continuous(breaks=seq(1,20,by=1),minor_breaks = seq(1,21,by=.2),limits=c(.8,21),expand=c(0,0))+
+  theme_bw()+
+  xlab("Cross-validation partition (repeat as labelled major grid, fold as minor grid)")+
+  ylab(expression(bold(Number~of~trained~configurations~(log[2]~scale))))+
+  scale_color_discrete(breaks=c('softmax','sigmoid'),
+                       limits=c('softmax','sigmoid'),
+                       name = 'APM',
+                       labels=c(expression(APM[MN]),expression(APM[OR])))+
+  theme(
+    panel.grid.minor.y = element_blank(),
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.title.y = element_text(color = "black",face = 'bold'),
+    axis.title.x = element_text(color = "black",face = 'bold'),
+    legend.position = 'bottom',
+    legend.title = element_text(color = "black",face = 'bold')
+  )
+
+# Combine all tuning grids into single dataframe
+compiled.APM.tuning.grids <- rbind(
+  APM.tuning.grid %>% mutate(LastCompleted = 'Base'),
+  APM.post.r01.f1.tuning.grid %>% mutate(LastCompleted = 'Repeat 1, Fold 1'),
+  APM.post.r10.tuning.grid %>% mutate(LastCompleted = 'Repeat 10')
+  )
+
+# Calculate overall count of configurations by last completed partition
+APM.total.config.df <- compiled.APM.tuning.grids %>%
+  group_by(OUTPUT_ACTIVATION,LastCompleted) %>%
+  summarise(TotalConfigs = n())
+
+# Calculate count and proportion of each of the variable hyperparameters at each last completed partition
+APM.proportion.df <- compiled.APM.tuning.grids %>%
+  select(c(OUTPUT_ACTIVATION,LastCompleted,LAYERS,MEDIAN_NEURONS_PER_LAYER,DROPOUT)) %>%
+  pivot_longer(cols = -c(OUTPUT_ACTIVATION,LastCompleted),names_to = 'Hyperparameter') %>%
+  group_by(OUTPUT_ACTIVATION,LastCompleted,Hyperparameter,value) %>%
+  count() %>%
+  left_join(APM.total.config.df,by = c('OUTPUT_ACTIVATION','LastCompleted')) %>%
+  rowwise() %>%
+  mutate(Percentage = 100*n/TotalConfigs) %>%
+  mutate(formatted =sprintf('%d (%.01f%%)',n,Percentage)) %>%
+  select(c(OUTPUT_ACTIVATION,LastCompleted,Hyperparameter,value,formatted)) %>%
+  pivot_wider(id_cols = c(OUTPUT_ACTIVATION,Hyperparameter,value),names_from = LastCompleted,values_from = formatted) %>%
+  replace(is.na(.), '0 (0%)')
+
+## eCPM
+# Load tuning grids
+eCPM.tuning.grid <- read.csv('../eCPM_outputs/DEEP_v1-0/eCPM_deep_tuning_grid.csv')
+eCPM.tuning.grid$NEURONS[eCPM.tuning.grid$LAYERS == 1] <- str_remove(eCPM.tuning.grid$NEURONS[eCPM.tuning.grid$LAYERS == 1], ',')
+eCPM.tuning.grid <- eCPM.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+eCPM.post.r01.tuning.grid <- read.csv('../eCPM_outputs/DEEP_v1-0/eCPM_post_repeat_01_deep_tuning_grid.csv')
+eCPM.post.r01.tuning.grid$NEURONS[eCPM.post.r01.tuning.grid$LAYERS == 1] <- str_remove(eCPM.post.r01.tuning.grid$NEURONS[eCPM.post.r01.tuning.grid$LAYERS == 1], ',')
+eCPM.post.r01.tuning.grid <- eCPM.post.r01.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+eCPM.post.r16.tuning.grid <- read.csv('../eCPM_outputs/DEEP_v1-0/eCPM_post_repeat_16_deep_tuning_grid.csv')
+eCPM.post.r16.tuning.grid$NEURONS[eCPM.post.r16.tuning.grid$LAYERS == 1] <- str_remove(eCPM.post.r16.tuning.grid$NEURONS[eCPM.post.r16.tuning.grid$LAYERS == 1], ',')
+eCPM.post.r16.tuning.grid <- eCPM.post.r16.tuning.grid %>%
+  rowwise() %>%
+  mutate(MEDIAN_NEURONS_PER_LAYER = median(eval(parse(text=paste0('c',NEURONS)))))
+
+# Create configuration count dataframe
+eCPM.config.df <- rbind(
+  eCPM.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=1),
+  eCPM.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=1.8),
+  eCPM.post.r01.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=2),
+  eCPM.post.r01.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=16.8),
+  eCPM.post.r16.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=17),
+  eCPM.post.r16.tuning.grid %>% group_by(OUTPUT_ACTIVATION) %>% count() %>% mutate(Repeat=20.8)
+)
+
+eCPM.config.labels <- rbind(
+  eCPM.post.r01.tuning.grid %>% 
+    group_by(OUTPUT_ACTIVATION) %>% 
+    count() %>% 
+    mutate(Repeat=2) %>% 
+    mutate(MODEL=plyr::mapvalues(OUTPUT_ACTIVATION,
+                                 from = c('softmax','sigmoid'),
+                                 to = c('eCPM[DeepMN]','eCPM[DeepOR]'))) %>%
+    mutate(PlotLabel=paste0(MODEL,': ',n)),
+  eCPM.post.r16.tuning.grid %>% 
+    group_by(OUTPUT_ACTIVATION) %>% 
+    count() %>% 
+    mutate(Repeat=17) %>%
+    mutate(MODEL=plyr::mapvalues(OUTPUT_ACTIVATION,
+                                 from = c('softmax','sigmoid'),
+                                 to = c('eCPM[DeepMN]','eCPM[DeepOR]'))) %>%
+    mutate(PlotLabel=paste0(MODEL,': ',n))
+)
+
+# Create configuration count plot
+eCPM.config.plot <-  ggplot(data=NULL,aes(x=Repeat,color=OUTPUT_ACTIVATION,y=n)) +
+  geom_line(data=eCPM.config.df)+ 
+  geom_point(data=eCPM.config.labels) +
+  geom_label(data=eCPM.config.labels,
+             aes(label=n),
+             hjust = 0, 
+             nudge_x = 0.05,
+             parse=TRUE,
+             label.size = NA,
+             show.legend = FALSE)+
+  coord_trans(y="log2")+
+  scale_y_continuous(breaks=2^seq(0,11),limits = c(1,2200))+
+  scale_x_continuous(breaks=seq(1,20,by=1),minor_breaks = seq(1,21,by=.2),limits=c(.8,21),expand=c(0,0))+
+  theme_bw()+
+  xlab("Cross-validation partition (repeat as labelled major grid, fold as minor grid)")+
+  ylab(expression(bold(Number~of~trained~configurations~(log[2]~scale))))+
+  scale_color_discrete(breaks=c('softmax','sigmoid'),
+                       limits=c('softmax','sigmoid'),
+                       name = 'eCPM',
+                       labels=c(expression(eCPM[DeepMN]),expression(eCPM[DeepOR])))+
+  theme(
+    panel.grid.minor.y = element_blank(),
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.title.y = element_text(color = "black",face = 'bold'),
+    axis.title.x = element_text(color = "black",face = 'bold'),
+    legend.position = 'bottom',
+    legend.title = element_text(color = "black",face = 'bold')
+  )
+
+# Combine all tuning grids into single dataframe
+compiled.eCPM.tuning.grids <- rbind(
+  eCPM.tuning.grid %>% mutate(LastCompleted = 'Base'),
+  eCPM.post.r01.tuning.grid %>% mutate(LastCompleted = 'Repeat 1'),
+  eCPM.post.r16.tuning.grid %>% mutate(LastCompleted = 'Repeat 16')
+)
+
+# Calculate overall count of configurations by last completed partition
+eCPM.total.config.df <- compiled.eCPM.tuning.grids %>%
+  group_by(OUTPUT_ACTIVATION,LastCompleted) %>%
+  summarise(TotalConfigs = n())
+
+# Calculate count and proportion of each of the variable hyperparameters at each last completed partition
+eCPM.proportion.df <- compiled.eCPM.tuning.grids %>%
+  select(c(OUTPUT_ACTIVATION,LastCompleted,LAYERS,MEDIAN_NEURONS_PER_LAYER,DROPOUT)) %>%
+  pivot_longer(cols = -c(OUTPUT_ACTIVATION,LastCompleted),names_to = 'Hyperparameter') %>%
+  group_by(OUTPUT_ACTIVATION,LastCompleted,Hyperparameter,value) %>%
+  count() %>%
+  left_join(eCPM.total.config.df,by = c('OUTPUT_ACTIVATION','LastCompleted')) %>%
+  rowwise() %>%
+  mutate(Percentage = 100*n/TotalConfigs) %>%
+  mutate(formatted =sprintf('%d (%.01f%%)',n,Percentage)) %>%
+  select(c(OUTPUT_ACTIVATION,LastCompleted,Hyperparameter,value,formatted)) %>%
+  pivot_wider(id_cols = c(OUTPUT_ACTIVATION,Hyperparameter,value),names_from = LastCompleted,values_from = formatted) %>%
+  replace(is.na(.), '0 (0%)')
