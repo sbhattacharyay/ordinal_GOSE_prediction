@@ -51,10 +51,10 @@ In this `.py` file, we create and save bootstrapping resamples used for all mode
 </ol>
 
 ### 8. [Prepare predictor tokens for the training of all-predictor-based models (APMs)](scripts/08_prepare_APM_tokens.R)
-In this `.R` file,
+In this `.R` file, we load and prepare formatted CENTER-TBI predictor tokens. Then, convert formatted predictors to tokens for each repeated cross-validation partition.
 
 ### 9. [Train APM dictionaries and convert tokens to embedding layer indices](scripts/09_prepare_APM_dictionaries.py)
-In this `.py` file,
+In this `.py` file, we train APM dictionaries per repeated cross-validation partition and convert tokens to indices.
 
 ### 10. Train and optimise APM_MN and APM_OR
 
@@ -81,13 +81,13 @@ In this `.py` file,
 </ol>
 
 ### 13. [Prepare extended concise predictor set for ordinal prediction](scripts/13_prepare_extended_concise_predictor_set.R)
-In this `.R` file,
+In this `.R` file, we load IMPACT variables from CENTER-TBI, load and prepare the added variables from CENTER-TBI, and multiply impute extended concise predictor set in parallel. The training set for each repeated k-fold CV partition is used to train an independent predictive mean matching imputation transformation for that partition. The result is 100 imputations, one for each repeated k-fold cross validation partition.
 
 ### 14. [Train logistic regression extended concise-predictor-based models (eCPM)](scripts/14_eCPM_logreg.py)
-In this `.py` file,
+In this `.py` file, we define a function to train logistic regression eCPMs given the repeated cross-validation dataframe. Then we perform parallelised training of logistic regression eCPMs and testing set prediction. Finally, we compile testing set predictions.
 
 ### 15. [Assess eCPM_MNLR and eCPM_POLR performance](scripts/15_eCPM_logreg_performance.py)
-In this `.py` file,
+In this `.py` file, we load the common bootstrapping resamples (that will be used for all model performance evaluation), prepare compiled eCPM_MNLR and eCPM_POLR testing set predictions, and calculate/save performance metrics
 
 ### 16. Train and optimise eCPM_DeepMN and eCPM_DeepOR
 
@@ -105,7 +105,7 @@ In this `.py` file,
 </ol>
 
 ### 18. [Perform ordinal regression analysis on study characteristics and predictors](scripts/18_ordinal_regression_analysis.py)
-In this `.py` file,
+In this `.py` file, we perform ordinal regression analysis on summary characteristics, perform ordinal regression analysis on CPM characteristics, and perform ordinal regression analysis on eCPM characteristics.
 
 ### 19. [Visualise study results for manuscript](scripts/19_manuscript_visualisations.R)
 In this `.R` file, we produce the figures for the manuscript and the supplementary figures. The large majority of the quantitative figures in the manuscript are produced using the `ggplot` package.
