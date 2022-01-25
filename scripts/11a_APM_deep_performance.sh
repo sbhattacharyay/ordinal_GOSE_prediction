@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=metrics_APM_deep
+#SBATCH --job-name=calib_metrics_APM_deep
 #SBATCH --time=01:00:00
 #SBATCH --array=0-1999
 #SBATCH --nodes=1
@@ -7,7 +7,7 @@
 #SBATCH --account=MENON-SL2-CPU
 #SBATCH --partition=icelake
 #SBATCH --mail-type=ALL
-#SBATCH --output=./hpc_logs/APM_deep_performance/APM_deep_performance_trial_%a.out
+#SBATCH --output=./hpc_logs/APM_deep_performance/recalulate_calibration_APM_deep_performance_trial_%a.out
 #SBATCH --mail-user=sb2406@cam.ac.uk
 
 . /etc/profile.d/modules.sh                # Leave this line (enables the module command)

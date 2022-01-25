@@ -1,4 +1,4 @@
-#### Master Script 7b: Compile CPM_DeepMN and CPM_DeepOR performance metrics and calculate confidence intervals ####
+#### Master Script 7b: Assess CPM_DeepMN and CPM_DeepOR performance ####
 #
 # Shubhayu Bhattacharyay
 # University of Cambridge
@@ -7,7 +7,6 @@
 ### Contents:
 # I. Initialisation
 # II. Compile all CPM_deep performance metrics
-# III. Calculate confidence intervals on all CPM performance metrics
 
 ### I. Initialisation
 # Fundamental libraries

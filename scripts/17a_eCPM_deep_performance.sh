@@ -16,4 +16,4 @@ module load python/3.8
 
 source ~/python_venv/bin/activate
 
-srun python eCPM_deep_performance.py $SLURM_ARRAY_TASK_ID
+srun python 17a_eCPM_deep_performance.py $SLURM_ARRAY_TASK_ID

@@ -29,6 +29,7 @@ from pathlib import Path
 from ast import literal_eval
 import matplotlib.pyplot as plt
 from collections import Counter
+from scipy.special import logit
 from argparse import ArgumentParser
 from pandas.api.types import CategoricalDtype
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
@@ -43,6 +44,8 @@ from sklearn.utils.class_weight import compute_class_weight
 
 # StatsModel methods
 from statsmodels.nonparametric.smoothers_lowess import lowess
+from statsmodels.discrete.discrete_model import Logit
+from statsmodels.tools.tools import add_constant
 
 # TQDM for progress tracking
 from tqdm import tqdm
@@ -276,25 +279,32 @@ def main(array_task_id):
                                           'Threshold':thresh_labels,
                                           'Accuracy':accuracies})
     
-    ### Threshold-level calibration curves
+    ### Threshold-level calibration curves and associated metrics
     thresh_labels = ['GOSE>1','GOSE>3','GOSE>4','GOSE>5','GOSE>6','GOSE>7']
-    best_is_emax = 1
+    best_is_slope_error = 100000
     for curr_ti in curr_is_preds.TUNE_IDX.unique():
         curr_ti_preds = curr_is_preds[curr_is_preds.TUNE_IDX == curr_ti].reset_index(drop=True)
-        thresh_emaxs = []
+        thresh_slopes = []
 
         for thresh in thresh_labels:
             thresh_prob_name = 'Pr('+thresh+')'
-            TrueProb = lowess(endog = curr_ti_preds[thresh], exog = curr_ti_preds[thresh_prob_name], it = 0, xvals = np.linspace(0,1,200))
-            thresh_emaxs.append(np.max(np.abs(TrueProb - np.linspace(0,1,200))))
-        curr_emax = np.mean(thresh_emaxs)
+            
+            logit_gt = np.nan_to_num(logit(curr_ti_preds[thresh_prob_name]))
+            
+            calib_glm = Logit(curr_ti_preds[thresh], add_constant(logit_gt))
+            
+            calib_glm_res = calib_glm.fit(disp=False)
+            
+            thresh_slopes.append(np.abs(1-calib_glm_res.params[1]))
+        curr_slope_error = np.mean(thresh_slopes)
         
-        if curr_emax < best_is_emax:
+        if curr_slope_error < best_is_slope_error:
             opt_ti = curr_ti
-            best_is_emax = curr_emax
+            best_is_slope_error = curr_slope_error
             
     curr_os_ti_preds = curr_os_preds[curr_os_preds.TUNE_IDX == opt_ti].reset_index(drop=True)
-        
+    
+    # Calculate threshold-level calibration curves
     final_calibs = []
     for thresh in thresh_labels:
         thresh_prob_name = 'Pr('+thresh+')'
@@ -307,12 +317,21 @@ def main(array_task_id):
     final_calibs.to_csv(os.path.join(metric_dir,'deep_calibration.csv'),index=False)
 
     # Calculate threshold-level calibration metrics
-    final_calibs['abs_diff'] = (final_calibs['PredProb'] - final_calibs['TrueProb']).abs()
-    final_calib_metrics = final_calibs.groupby(['MODEL','Threshold','RESAMPLE_IDX'],as_index=False)['abs_diff'].aggregate({'ICI':'mean','Emax':'max','E50':np.median,'E90':lambda x: np.quantile(x,.9)}).reset_index(drop=True)
+    final_calib_metrics = []
+    for thresh in thresh_labels:
+        thresh_prob_name = 'Pr('+thresh+')'
+        logit_gt = np.nan_to_num(logit(curr_os_ti_preds[thresh_prob_name]))
+        calib_glm = Logit(curr_os_ti_preds[thresh], add_constant(logit_gt))
+        calib_glm_res = calib_glm.fit(disp=False)
+        final_calib_metrics.append(pd.DataFrame({'Threshold':thresh,'Predictor':['Calib_Intercept','Calib_Slope'],'COEF':calib_glm_res.params}))
+    final_calib_metrics = pd.concat(final_calib_metrics,ignore_index = True).pivot(index="Threshold", columns="Predictor", values="COEF").reset_index()
+    final_calib_metrics.columns.name = None
+    final_calib_metrics['MODEL']='CPM_D'+curr_model[1:]
+    final_calib_metrics['RESAMPLE_IDX'] = curr_rs_idx
 
     #### Compile and save threshold-level metrics
     cpm_deep_tlm = pd.merge(final_auc,final_thresh_accuracy,how='left',on=['MODEL','RESAMPLE_IDX','Threshold']).merge(final_calib_metrics,how='left',on=['MODEL','RESAMPLE_IDX','Threshold'])
-    cpm_deep_tlm = cpm_deep_tlm[['MODEL','RESAMPLE_IDX','Threshold','AUC','Accuracy','ICI','Emax','E50','E90']]
+    cpm_deep_tlm = cpm_deep_tlm[['MODEL','RESAMPLE_IDX','Threshold','AUC','Accuracy','Calib_Intercept','Calib_Slope']]
     cpm_deep_tlm.to_csv(os.path.join(metric_dir,'deep_threshold_metrics.csv'),index=False)
 
     ### Normalized confusion matrix
