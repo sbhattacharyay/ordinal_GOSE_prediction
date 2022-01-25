@@ -30,6 +30,7 @@ from scipy import stats
 from pathlib import Path
 from ast import literal_eval
 import matplotlib.pyplot as plt
+from scipy.special import logit
 from collections import Counter
 from argparse import ArgumentParser
 from pandas.api.types import CategoricalDtype
@@ -45,12 +46,15 @@ from sklearn.utils.class_weight import compute_class_weight
 
 # StatsModel methods
 from statsmodels.nonparametric.smoothers_lowess import lowess
+from statsmodels.miscmodels.ordinal_model import OrderedModel
+from statsmodels.discrete.discrete_model import Logit
+from statsmodels.tools.tools import add_constant
 
 # TQDM for progress tracking
 from tqdm import tqdm
 
 # Custom methods
-from functions.analysis import calc_bs_ORC, calc_bs_gen_c, calc_bs_thresh_AUC, calc_bs_cm, calc_bs_accuracy, calc_bs_thresh_accuracy, calc_bs_thresh_ROC, calc_bs_thresh_calibration
+from functions.analysis import calc_bs_ORC, calc_bs_gen_c, calc_bs_thresh_AUC, calc_bs_cm, calc_bs_accuracy, calc_bs_thresh_accuracy, calc_bs_thresh_ROC, calc_bs_thresh_calibration, calc_bs_thresh_calib_metrics
 
 # Define version for assessment
 VERSION = 'LOGREG_v1-0'
@@ -188,20 +192,23 @@ cpm_logreg_calibration = pd.concat([cpm_mnlr_calibration,cpm_polr_calibration],i
 cpm_logreg_calibration.to_csv('../model_performance/CPM/logreg_calibration.csv',index=False)
 
 # Calculate calibration metrics at each threshold
-cpm_mnlr_calibration['abs_diff'] = (cpm_mnlr_calibration['PredProb'] - cpm_mnlr_calibration['TrueProb']).abs()
-cpm_mnlr_calib_metrics = cpm_mnlr_calibration.groupby(['MODEL','Threshold','RESAMPLE_IDX'],as_index=False)['abs_diff'].aggregate({'ICI':'mean','Emax':'max','E50':np.median,'E90':lambda x: np.quantile(x,.9)}).reset_index(drop=True)
+with multiprocessing.Pool(NUM_CORES) as pool:
+    cpm_mnlr_calib_metrics = pd.concat(pool.starmap(calc_bs_thresh_calib_metrics, cpm_mnlr_resamples_per_core),ignore_index=True)
+cpm_mnlr_calib_metrics['MODEL'] = 'CPM_MNLR'
 
-cpm_polr_calibration['abs_diff'] = (cpm_polr_calibration['PredProb'] - cpm_polr_calibration['TrueProb']).abs()
-cpm_polr_calib_metrics = cpm_polr_calibration.groupby(['MODEL','Threshold','RESAMPLE_IDX'],as_index=False)['abs_diff'].aggregate({'ICI':'mean','Emax':'max','E50':np.median,'E90':lambda x: np.quantile(x,.9)}).reset_index(drop=True)
+with multiprocessing.Pool(NUM_CORES) as pool:
+    cpm_polr_calib_metrics = pd.concat(pool.starmap(calc_bs_thresh_calib_metrics, cpm_polr_resamples_per_core),ignore_index=True)
+cpm_polr_calib_metrics['MODEL'] = 'CPM_POLR'
 
 # Compile threshold-level metrics across model types
 cpm_logreg_thresh_AUC = pd.concat([cpm_mnlr_thresh_AUC,cpm_polr_thresh_AUC],ignore_index=True)
 cpm_logreg_thresh_accuracy = pd.concat([cpm_mnlr_thresh_accuracy,cpm_polr_thresh_accuracy],ignore_index=True)
-cpm_logreg_calib_metrics = pd.concat([cpm_mnlr_calib_metrics,cpm_polr_calib_metrics],ignore_index=True)
+cpm_logreg_calib_metrics = pd.concat([cpm_mnlr_calib_metrics,cpm_polr_calib_metrics],ignore_index=True).pivot(index=["RESAMPLE_IDX","Threshold","MODEL"], columns="Predictor", values="COEF").reset_index()
+cpm_logreg_calib_metrics.columns.name = None
 
 # Merge threshold-level metric dataframes
 cpm_logreg_tlm = pd.merge(cpm_logreg_thresh_AUC,cpm_logreg_thresh_accuracy,how='left',on=['MODEL','RESAMPLE_IDX','Threshold']).merge(cpm_logreg_calib_metrics,how='left',on=['MODEL','RESAMPLE_IDX','Threshold'])
-cpm_logreg_tlm = cpm_logreg_tlm[['MODEL','RESAMPLE_IDX','Threshold','AUC','Accuracy','ICI','Emax','E50','E90']]
+cpm_logreg_tlm = cpm_logreg_tlm[['MODEL','RESAMPLE_IDX','Threshold','AUC','Accuracy','Calib_Intercept','Calib_Slope']]
 
 # Save threshold-level metric dataframe
 cpm_logreg_tlm.to_csv('../model_performance/CPM/logreg_threshold_metrics.csv',index=False)

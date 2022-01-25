@@ -30,6 +30,7 @@ from scipy import stats
 from pathlib import Path
 from ast import literal_eval
 import matplotlib.pyplot as plt
+from scipy.special import logit
 from collections import Counter
 from argparse import ArgumentParser
 from pandas.api.types import CategoricalDtype
@@ -45,12 +46,15 @@ from sklearn.utils.class_weight import compute_class_weight
 
 # StatsModel methods
 from statsmodels.nonparametric.smoothers_lowess import lowess
+from statsmodels.miscmodels.ordinal_model import OrderedModel
+from statsmodels.discrete.discrete_model import Logit
+from statsmodels.tools.tools import add_constant
 
 # TQDM for progress tracking
 from tqdm import tqdm
 
 # Custom methods
-from functions.analysis import calc_bs_ORC, calc_bs_gen_c, calc_bs_thresh_AUC, calc_bs_cm, calc_bs_accuracy, calc_bs_thresh_accuracy, calc_bs_thresh_ROC, calc_bs_thresh_calibration
+from functions.analysis import calc_bs_ORC, calc_bs_gen_c, calc_bs_thresh_AUC, calc_bs_cm, calc_bs_accuracy, calc_bs_thresh_accuracy, calc_bs_thresh_ROC, calc_bs_thresh_calibration, calc_bs_thresh_calib_metrics
 
 # Define version for assessment
 VERSION = 'LOGREG_v1-0'
@@ -70,15 +74,8 @@ os.makedirs('../model_performance',exist_ok=True)
 cv_splits = pd.read_csv('../cross_validation_splits.csv')
 study_GUPI_GOSE = cv_splits[['GUPI','GOSE']].drop_duplicates()
 
-# Make stratified resamples for bootstrapping metrics
-bs_rs_GUPIs = [resample(study_GUPI_GOSE.GUPI.values,replace=True,n_samples=study_GUPI_GOSE.shape[0],stratify=study_GUPI_GOSE.GOSE.values) for _ in range(NUM_RESAMP)]
-bs_rs_GUPIs = [np.unique(curr_rs) for curr_rs in bs_rs_GUPIs]
-
-# Create Data Frame to store bootstrapping resmaples 
-bs_resamples = pd.DataFrame({'RESAMPLE_IDX':[i+1 for i in range(NUM_RESAMP)],'GUPIs':bs_rs_GUPIs})
-
-# Save bootstrapping resample dataframe
-bs_resamples.to_pickle('../model_performance/bs_resamples.pkl')
+# Load bootstrapping resample dataframe
+bs_resamples = pd.read_pickle('../model_performance/bs_resamples.pkl')
 
 ### III. Prepare compiled eCPM_MNLR and eCPM_POLR testing set predictions
 # Load compiled eCPM_MNLR and eCPM_POLR testing set predictions
@@ -188,20 +185,23 @@ ecpm_logreg_calibration = pd.concat([ecpm_mnlr_calibration,ecpm_polr_calibration
 ecpm_logreg_calibration.to_csv('../model_performance/eCPM/logreg_calibration.csv',index=False)
 
 # Calculate calibration metrics at each threshold
-ecpm_mnlr_calibration['abs_diff'] = (ecpm_mnlr_calibration['PredProb'] - ecpm_mnlr_calibration['TrueProb']).abs()
-ecpm_mnlr_calib_metrics = ecpm_mnlr_calibration.groupby(['MODEL','Threshold','RESAMPLE_IDX'],as_index=False)['abs_diff'].aggregate({'ICI':'mean','Emax':'max','E50':np.median,'E90':lambda x: np.quantile(x,.9)}).reset_index(drop=True)
+with multiprocessing.Pool(NUM_CORES) as pool:
+    ecpm_mnlr_calib_metrics = pd.concat(pool.starmap(calc_bs_thresh_calib_metrics, ecpm_mnlr_resamples_per_core),ignore_index=True)
+ecpm_mnlr_calib_metrics['MODEL'] = 'eCPM_MNLR'
 
-ecpm_polr_calibration['abs_diff'] = (ecpm_polr_calibration['PredProb'] - ecpm_polr_calibration['TrueProb']).abs()
-ecpm_polr_calib_metrics = ecpm_polr_calibration.groupby(['MODEL','Threshold','RESAMPLE_IDX'],as_index=False)['abs_diff'].aggregate({'ICI':'mean','Emax':'max','E50':np.median,'E90':lambda x: np.quantile(x,.9)}).reset_index(drop=True)
+with multiprocessing.Pool(NUM_CORES) as pool:
+    ecpm_polr_calib_metrics = pd.concat(pool.starmap(calc_bs_thresh_calib_metrics, ecpm_polr_resamples_per_core),ignore_index=True)
+ecpm_polr_calib_metrics['MODEL'] = 'eCPM_POLR'
 
 # Compile threshold-level metrics across model types
 ecpm_logreg_thresh_AUC = pd.concat([ecpm_mnlr_thresh_AUC,ecpm_polr_thresh_AUC],ignore_index=True)
 ecpm_logreg_thresh_accuracy = pd.concat([ecpm_mnlr_thresh_accuracy,ecpm_polr_thresh_accuracy],ignore_index=True)
-ecpm_logreg_calib_metrics = pd.concat([ecpm_mnlr_calib_metrics,ecpm_polr_calib_metrics],ignore_index=True)
+ecpm_logreg_calib_metrics = pd.concat([ecpm_mnlr_calib_metrics,ecpm_polr_calib_metrics],ignore_index=True).pivot(index=["RESAMPLE_IDX","Threshold","MODEL"], columns="Predictor", values="COEF").reset_index()
+ecpm_logreg_calib_metrics.columns.name = None
 
 # Merge threshold-level metric dataframes
 ecpm_logreg_tlm = pd.merge(ecpm_logreg_thresh_AUC,ecpm_logreg_thresh_accuracy,how='left',on=['MODEL','RESAMPLE_IDX','Threshold']).merge(ecpm_logreg_calib_metrics,how='left',on=['MODEL','RESAMPLE_IDX','Threshold'])
-ecpm_logreg_tlm = ecpm_logreg_tlm[['MODEL','RESAMPLE_IDX','Threshold','AUC','Accuracy','ICI','Emax','E50','E90']]
+ecpm_logreg_tlm = ecpm_logreg_tlm[['MODEL','RESAMPLE_IDX','Threshold','AUC','Accuracy','Calib_Intercept','Calib_Slope']]
 
 # Save threshold-level metric dataframe
 ecpm_logreg_tlm.to_csv('../model_performance/eCPM/logreg_threshold_metrics.csv',index=False)

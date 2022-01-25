@@ -18,6 +18,7 @@ from pathlib import Path
 from ast import literal_eval
 import matplotlib.pyplot as plt
 from collections import Counter
+from scipy.special import logit
 from argparse import ArgumentParser
 from pandas.api.types import CategoricalDtype
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
@@ -33,6 +34,8 @@ from sklearn.utils.class_weight import compute_class_weight
 # StatsModel methods
 from statsmodels.nonparametric.smoothers_lowess import lowess
 from statsmodels.miscmodels.ordinal_model import OrderedModel
+from statsmodels.discrete.discrete_model import Logit
+from statsmodels.tools.tools import add_constant
 
 # TQDM for progress tracking
 from tqdm import tqdm
@@ -304,7 +307,7 @@ def calc_bs_thresh_ROC(curr_resamples, compiled_test_preds, progress_bar = True,
             prob_gt = curr_rs_preds[cols_gt].sum(1).values
             
             gt = (curr_rs_preds['TrueLabel'] >= thresh).astype(int).values
-            
+                        
             (fpr, tpr, _) = roc_curve(gt, prob_gt)
             
             interp_tpr = np.interp(np.linspace(0,1,200),fpr,tpr)
@@ -369,17 +372,53 @@ def calc_bs_thresh_calibration(curr_resamples, compiled_test_preds, progress_bar
             cols_gt = prob_cols[thresh:]
             
             prob_gt = curr_rs_preds[cols_gt].sum(1).values
-            
+                        
             gt = (curr_rs_preds['TrueLabel'] >= thresh).astype(int).values
-            
+                                
             TrueProb = lowess(endog = gt, exog = prob_gt, it = 0, xvals = np.linspace(0,1,200))
                                     
             calib_axes = pd.DataFrame({'RESAMPLE_IDX':curr_resamples.RESAMPLE_IDX[curr_rs_row],'Threshold':thresh_labels[thresh-1],'PredProb':np.linspace(0,1,200),'TrueProb':TrueProb})
                         
             compiled_calibs.append(calib_axes)
-                
+            
     return pd.concat(compiled_calibs,ignore_index = True)
 
+# Function to calculate threshold-level calibration metrics
+def calc_bs_thresh_calib_metrics(curr_resamples, compiled_test_preds, progress_bar = True, progress_bar_desc = ''):
+    
+    thresh_labels = ['GOSE>1','GOSE>3','GOSE>4','GOSE>5','GOSE>6','GOSE>7']
+    
+    compiled_metrics = []
+    
+    if progress_bar:
+        iterator = tqdm(range(curr_resamples.shape[0]),desc=progress_bar_desc)
+    else:
+        iterator = range(curr_resamples.shape[0])
+    
+    for curr_rs_row in iterator:
+                
+        curr_in_sample = curr_resamples.GUPIs[curr_rs_row]
+        
+        curr_rs_preds = compiled_test_preds[compiled_test_preds.GUPI.isin(curr_in_sample)].reset_index(drop=True)
+        
+        prob_cols = [col for col in curr_rs_preds if col.startswith('Pr(GOSE')]
+
+        for thresh in range(1,len(prob_cols)):
+            
+            cols_gt = prob_cols[thresh:]
+                        
+            logit_gt = np.nan_to_num(logit(curr_rs_preds[cols_gt].sum(1).values))
+            
+            gt = (curr_rs_preds['TrueLabel'] >= thresh).astype(int).values
+            
+            calib_glm = Logit(gt, add_constant(logit_gt))
+            
+            calib_glm_res = calib_glm.fit(disp=False)
+            
+            compiled_metrics.append(pd.DataFrame({'RESAMPLE_IDX':curr_resamples.RESAMPLE_IDX[curr_rs_row],'Threshold':thresh_labels[thresh-1],'Predictor':['Calib_Intercept','Calib_Slope'],'COEF':calib_glm_res.params}))
+            
+    return pd.concat(compiled_metrics,ignore_index = True)        
+        
 # Function to perform ordinal regression analysis
 def ordinal_analysis(split_df,analysis_dir,characteristics='CPM',progress_bar=True):
     
