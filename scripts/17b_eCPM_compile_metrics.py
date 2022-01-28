@@ -133,7 +133,7 @@ eCPM_compiled_overall = pd.melt(eCPM_compiled_overall,id_vars=['MODEL','RESAMPLE
 CI_eCPM_overall = eCPM_compiled_overall.groupby(['MODEL','METRIC'],as_index=False)['VALUE'].aggregate({'mean':np.mean,'std':np.std,'median':np.median,'lo':lambda x: np.quantile(x,.025),'hi':lambda x: np.quantile(x,.975),'resamples':'count'}).reset_index(drop=True)
 CI_eCPM_overall.to_csv(os.path.join(performance_dir,'CI_overall_metrics.csv'),index=False)
 
-## Threhsold-level performance metrics
+## Threshold-level performance metrics
 # Load and compile threshold-level performance metrics
 eCPM_compiled_threshold = pd.concat([pd.read_csv(os.path.join(performance_dir,'deep_threshold_metrics.csv')),pd.read_csv(os.path.join(performance_dir,'logreg_threshold_metrics.csv'))],ignore_index=True)
 

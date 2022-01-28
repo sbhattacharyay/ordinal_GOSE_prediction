@@ -65,7 +65,7 @@ model_dir = '/home/sb2406/rds/hpc-work/eCPM_outputs/'+VERSION
 ### II. Calculate perfomance metrics on resamples
 # Define metric calculation function
 def main(array_task_id):
-    
+        
     # Get resample information for current trial
     curr_gupis = rs_model_combos.GUPIs[array_task_id]
     curr_model = rs_model_combos.MODEL[array_task_id]
@@ -289,7 +289,7 @@ def main(array_task_id):
         for thresh in thresh_labels:
             thresh_prob_name = 'Pr('+thresh+')'
             
-            logit_gt = np.nan_to_num(logit(curr_ti_preds[thresh_prob_name]))
+            logit_gt = np.nan_to_num(logit(curr_ti_preds[thresh_prob_name]),neginf=-100,posinf=100)
             
             calib_glm = Logit(curr_ti_preds[thresh], add_constant(logit_gt))
             
@@ -320,7 +320,7 @@ def main(array_task_id):
     final_calib_metrics = []
     for thresh in thresh_labels:
         thresh_prob_name = 'Pr('+thresh+')'
-        logit_gt = np.nan_to_num(logit(curr_os_ti_preds[thresh_prob_name]))
+        logit_gt = np.nan_to_num(logit(curr_os_ti_preds[thresh_prob_name]),neginf=-100,posinf=100)
         calib_glm = Logit(curr_os_ti_preds[thresh], add_constant(logit_gt))
         calib_glm_res = calib_glm.fit(disp=False)
         final_calib_metrics.append(pd.DataFrame({'Threshold':thresh,'Predictor':['Calib_Intercept','Calib_Slope'],'COEF':calib_glm_res.params}))
