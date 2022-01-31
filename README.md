@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/439502688.svg)](https://zenodo.org/badge/latestdoi/439502688)
 # Baseline ordinal prediction of functional outcomes after traumatic brain injury (TBI) in the ICU
 The leap to ordinal: functional prognosis after traumatic brain injury using artificial intelligence
 
