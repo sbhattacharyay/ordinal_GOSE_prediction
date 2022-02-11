@@ -1,7 +1,8 @@
 [![DOI](https://zenodo.org/badge/439502688.svg)](https://zenodo.org/badge/latestdoi/439502688)
+[![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg)](https://arxiv.org/abs/2202.04801)
 # Baseline ordinal prediction of functional outcomes after traumatic brain injury (TBI) in the ICU
 The leap to ordinal: functional prognosis after traumatic brain injury using artificial intelligence
-
+(https://arxiv.org/abs/2202.04801)
 ## Contents
 
 - [Overview](#overview)
@@ -113,3 +114,13 @@ In this `.py` file, we perform ordinal regression analysis on summary characteri
 In this `.R` file, we produce the figures for the manuscript and the supplementary figures. The large majority of the quantitative figures in the manuscript are produced using the `ggplot` package.
 
 ## Citation
+```
+@misc{bhattacharyay2022leap,
+    title={The leap to ordinal: functional prognosis after traumatic brain injury using artificial intelligence},
+    author={Shubhayu Bhattacharyay and Ioan Milosevic and Lindsay Wilson and David K. Menon and Robert D. Stevens and Ewout W. Steyerberg and David W. Nelson and Ari Ercole and the CENTER-TBI investigators and participants},
+    year={2022},
+    eprint={2202.04801},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
+}
+```
