@@ -1,0 +1,43 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Bhattacharyay"
+  given-names: "Shubhayu"
+  orcid: "https://orcid.org/0000-0001-7428-5588"
+title: "sbhattacharyay/ordinal_GOSE_prediction: Publication of ordinal GOSE prediction repository"
+version: 1.0.0
+doi: 10.5281/zenodo.5933041
+date-released: 2022-01-31
+url: "https://github.com/sbhattacharyay/ordinal_GOSE_prediction"
+preferred-citation:
+  type: misc
+  authors:
+  - family-names: "Bhattacharyay"
+    given-names: "Shubhayu"
+    orcid: "https://orcid.org/0000-0001-7428-5588"
+  - family-names: "Milosevic"
+    given-names: "Ioan"
+  - family-names: "Wilson"
+    given-names: "Lindsay"
+    orcid: "https://orcid.org/0000-0003-4113-2328"
+  - family-names: "Menon"
+    given-names: "David K."
+    orcid: "https://orcid.org/0000-0002-3228-9692"
+  - family-names: "Stevens"
+    given-names: "Robert D."
+    orcid: "https://orcid.org/0000-0001-5984-7837"
+  - family-names: "Steyerberg"
+    given-names: "Ewout W."
+    orcid: "https://orcid.org/0000-0002-7787-0122"
+  - family-names: "Nelson"
+    given-names: "David W."
+    orcid: "https://orcid.org/0000-0003-2530-8207"
+  - family-names: "Ercole"
+    given-names: "Ari"
+    orcid: "https://orcid.org/0000-0001-8350-8093"
+  journal: "arXiv"
+  archivePrefix: "arXiv"
+  eprint: 2202.04801
+  primaryClass: "cs.LG"
+  title: "The leap to ordinal: functional prognosis after traumatic brain injury using artificial intelligence"
+  year: 2022
