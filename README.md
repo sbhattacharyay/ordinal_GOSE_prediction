@@ -1,4 +1,4 @@
-[![DOI](https://doi.org/10.1371/journal.pone.0270973)
+[![DOI](10.1371/journal.pone.0270973)
 # Baseline ordinal prediction of functional outcomes after traumatic brain injury (TBI) in the ICU
 The leap to ordinal: Detailed functional prognosis after traumatic brain injury with a flexible modelling approach
 (https://doi.org/10.1371/journal.pone.0270973)
