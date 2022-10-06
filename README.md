@@ -1,8 +1,7 @@
-[![DOI](https://zenodo.org/badge/439502688.svg)](https://zenodo.org/badge/latestdoi/439502688)
-[![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg)](https://arxiv.org/abs/2202.04801)
+[![DOI](https://doi.org/10.1371/journal.pone.0270973)
 # Baseline ordinal prediction of functional outcomes after traumatic brain injury (TBI) in the ICU
-The leap to ordinal: functional prognosis after traumatic brain injury using artificial intelligence
-(https://arxiv.org/abs/2202.04801)
+The leap to ordinal: Detailed functional prognosis after traumatic brain injury with a flexible modelling approach
+(https://doi.org/10.1371/journal.pone.0270973)
 ## Contents
 
 - [Overview](#overview)
@@ -115,12 +114,18 @@ In this `.R` file, we produce the figures for the manuscript and the supplementa
 
 ## Citation
 ```
-@misc{bhattacharyay2022leap,
-    title={The leap to ordinal: functional prognosis after traumatic brain injury using artificial intelligence},
-    author={Shubhayu Bhattacharyay and Ioan Milosevic and Lindsay Wilson and David K. Menon and Robert D. Stevens and Ewout W. Steyerberg and David W. Nelson and Ari Ercole and the CENTER-TBI investigators and participants},
-    year={2022},
-    eprint={2202.04801},
-    archivePrefix={arXiv},
-    primaryClass={cs.LG}
+@article{10.1371/journal.pone.0270973,
+    doi = {10.1371/journal.pone.0270973},
+    author = {Bhattacharyay, Shubhayu AND Milosevic, Ioan AND Wilson, Lindsay AND Menon, David K. AND Stevens, Robert D. AND Steyerberg, Ewout W. AND Nelson, David W. AND Ercole, Ari AND the CENTER-TBI investigators participants},
+    journal = {PLOS ONE},
+    publisher = {Public Library of Science},
+    title = {The leap to ordinal: Detailed functional prognosis after traumatic brain injury with a flexible modelling approach},
+    year = {2022},
+    month = {07},
+    volume = {17},
+    url = {https://doi.org/10.1371/journal.pone.0270973},
+    pages = {1-29},
+    abstract = {When a patient is admitted to the intensive care unit (ICU) after a traumatic brain injury (TBI), an early prognosis is essential for baseline risk adjustment and shared decision making. TBI outcomes are commonly categorised by the Glasgow Outcome Scale–Extended (GOSE) into eight, ordered levels of functional recovery at 6 months after injury. Existing ICU prognostic models predict binary outcomes at a certain threshold of GOSE (e.g., prediction of survival [GOSE > 1]). We aimed to develop ordinal prediction models that concurrently predict probabilities of each GOSE score. From a prospective cohort (n = 1,550, 65 centres) in the ICU stratum of the Collaborative European NeuroTrauma Effectiveness Research in TBI (CENTER-TBI) patient dataset, we extracted all clinical information within 24 hours of ICU admission (1,151 predictors) and 6-month GOSE scores. We analysed the effect of two design elements on ordinal model performance: (1) the baseline predictor set, ranging from a concise set of ten validated predictors to a token-embedded representation of all possible predictors, and (2) the modelling strategy, from ordinal logistic regression to multinomial deep learning. With repeated k-fold cross-validation, we found that expanding the baseline predictor set significantly improved ordinal prediction performance while increasing analytical complexity did not. Half of these gains could be achieved with the addition of eight high-impact predictors to the concise set. At best, ordinal models achieved 0.76 (95% CI: 0.74–0.77) ordinal discrimination ability (ordinal c-index) and 57% (95% CI: 54%– 60%) explanation of ordinal variation in 6-month GOSE (Somers’ Dxy). Model performance and the effect of expanding the predictor set decreased at higher GOSE thresholds, indicating the difficulty of predicting better functional outcomes shortly after ICU admission. Our results motivate the search for informative predictors that improve confidence in prognosis of higher GOSE and the development of ordinal dynamic prediction models.},
+    number = {7}
 }
 ```
