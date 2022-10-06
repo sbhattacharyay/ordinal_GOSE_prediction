@@ -1,4 +1,5 @@
-[![DOI](10.1371/journal.pone.0270973)
+[![DOI](https://zenodo.org/badge/439502688.svg)](https://doi.org/10.1371/journal.pone.0270973)
+
 # Baseline ordinal prediction of functional outcomes after traumatic brain injury (TBI) in the ICU
 The leap to ordinal: Detailed functional prognosis after traumatic brain injury with a flexible modelling approach
 (https://doi.org/10.1371/journal.pone.0270973)
@@ -12,7 +13,7 @@ The leap to ordinal: Detailed functional prognosis after traumatic brain injury 
 
 ## Overview
 
-This repository contains the code underlying the article entitled **The leap to ordinal: An artificially intelligent approach to predict nuanced functional outcomes in critically ill patients with traumatic brain injury** from the Collaborative European NeuroTrauma Effectiveness Research in TBI ([CENTER-TBI](https://www.center-tbi.eu/)) consortium. In this file, we present the abstract, to outline the motivation for the work and the findings, and then a brief description of the code with which we generate these finding and achieve this objective.\
+This repository contains the code underlying the article entitled **The leap to ordinal: Detailed functional prognosis after traumatic brain injury with a flexible modelling approach** from the Collaborative European NeuroTrauma Effectiveness Research in TBI ([CENTER-TBI](https://www.center-tbi.eu/)) consortium. In this file, we present the abstract, to outline the motivation for the work and the findings, and then a brief description of the code with which we generate these finding and achieve this objective.\
 \
 The code on this repository is commented throughout to provide a description of each step alongside the code which achieves it.
 
